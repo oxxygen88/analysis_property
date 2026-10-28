@@ -2,12 +2,33 @@
 
 Aplikasi MVP berbahasa Indonesia untuk analisis harga rumah tapak, pembanding yang dapat ditelusuri, dan evaluasi pemasaran bertahap. Dibangun dengan React, TypeScript, Vite, dan Express. PDF dan PPTX dibuat di browser.
 
-## Menjalankan
+## Buka melalui GitHub Pages
+
+`index.html` di folder utama adalah aplikasi hasil build satu file, sudah berisi JavaScript, CSS, dan font. Tidak memerlukan npm atau backend untuk fitur lokal.
+
+1. Buka repository GitHub → **Settings → Pages**.
+2. Pada **Build and deployment**, pilih **Deploy from a branch**.
+3. Pilih branch **main**, folder **/ (root)**, kemudian **Save**.
+4. Tunggu deployment GitHub Pages berstatus selesai. Gunakan tautan **Visit site** yang ditampilkan GitHub.
+
+Untuk repository bernama `oxxygen88/analysis_property`, alamat default yang diharapkan adalah `https://oxxygen88.github.io/analysis_property/`. Alamat ini hanya aktif setelah Pages diaktifkan dan deployment berhasil. Menampilkan `index.html` di halaman kode GitHub atau melalui Raw bukan cara menjalankan aplikasi.
+
+GitHub Pages hanya menjalankan fitur lokal (input, pembanding, analisis, penyimpanan browser, PDF/PPTX). Ringkasan AI memerlukan versi server di bawah. Versi Pages tidak mengirim permintaan API dan tidak mengandung kunci rahasia. Jika pengaturan Pages saat ini memakai GitHub Actions atau folder lain, ubah ke konfigurasi di atas agar memakai HTML siap tayang ini.
+
+## Buka langsung tanpa instalasi
+
+Unduh repository melalui **Code → Download ZIP**, ekstrak ZIP, lalu klik dua kali `index.html` di folder utama. File itu juga dapat disalin sendiri ke komputer lain. Gunakan Chrome atau Edge terbaru.
+
+Tidak perlu Node.js, npm, koneksi internet, atau server untuk fitur lokal, termasuk unduhan PDF/PPTX. Data tetap berada di browser. Perilaku penyimpanan file lokal dapat berbeda antarbrowser, jadi cadangkan data penting. Data dari file lokal dan GitHub Pages tersimpan pada tempat terpisah.
+
+Source entry untuk pengembangan berada di `src/index.html`. Setelah mengubah source, jalankan `npm ci` lalu `npm run build:standalone`, dan commit ulang **index.html** hasil build. Jangan mengedit file hasil build secara manual. `npm run build` tetap menghasilkan versi server di `dist/` secara terpisah. Uji file lokal dan hosting pada subpath dengan `npm run test:standalone` (membutuhkan Chromium sistem).
+
+## Menjalankan versi server
 
 Prasyarat: Node.js 22.12+ (divalidasi dengan Node 24), npm.
 
 ```sh
-cd /workspace/analysis_property
+cd analysis_property
 npm ci
 npm run dev
 ```
@@ -68,3 +89,5 @@ Setiap cloud task sudah terisolasi. Gunakan checkout yang ada; tidak perlu membu
 ## Pengujian browser
 
 Jalankan server lebih dahulu, lalu `npm run test:browser`. Suite menggunakan Chromium sistem di `/usr/bin/chromium`; atur `CHROMIUM_PATH` dan `TEST_BASE_URL` jika berbeda. Mencakup input properti, pembanding manual/CSV, koreksi data, penghapusan simulasi, evaluasi metrik, persistensi browser, unduhan PDF/PPTX, dan navigasi ponsel. Artefak uji berada di `.local/checks/` dan diabaikan Git.
+
+`npm run test:standalone` menguji HTML siap tayang pada subpath seperti GitHub Pages, termasuk ekspor ketika jaringan dimatikan setelah halaman dimuat. Pengujian `file://` dilaporkan `SKIP` jika kebijakan Chromium terkelola memblokir file lokal; pengujian HTTP tetap harus lulus. Pembatasan tersebut terjadi pada mesin pengujian ini, sehingga pembukaan file lokal belum diverifikasi di sini. Status deployment pada layanan GitHub Pages perlu diperiksa terpisah melalui Settings → Pages.

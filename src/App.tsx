@@ -351,6 +351,7 @@ export default function App() {
     return () => clearTimeout(t);
   }, [toast]);
   useEffect(() => {
+    if (import.meta.env.VITE_STANDALONE === 'true' || location.protocol === 'file:') return;
     fetch('/api/health')
       .then((r) => r.json())
       .then((r) => setAiReady(r.aiConfigured))

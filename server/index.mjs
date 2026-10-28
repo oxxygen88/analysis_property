@@ -70,12 +70,16 @@ app.post('/api/summary', async (req, res) => {
   }
 });
 app.use('/api', (_req, res) => res.status(404).json({ error: 'Endpoint tidak ditemukan.' }));
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' || process.argv.includes('--production')) {
   app.use(express.static(path.join(root, 'dist')));
   app.get('/{*path}', (_req, res) => res.sendFile(path.join(root, 'dist/index.html')));
 } else {
   const { createServer } = await import('vite');
-  const vite = await createServer({ root, server: { middlewareMode: true }, appType: 'spa' });
+  const vite = await createServer({
+    configFile: path.join(root, 'vite.config.ts'),
+    server: { middlewareMode: true },
+    appType: 'spa',
+  });
   app.use(vite.middlewares);
 }
 app.use((err, _req, res, _next) =>

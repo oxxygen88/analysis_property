@@ -6,11 +6,13 @@
   "scripts": {
     "dev": "node server/index.mjs",
     "build": "tsc -b && vite build",
-    "start": "NODE_ENV=production node server/index.mjs",
+    "start": "node server/index.mjs --production",
+    "build:standalone": "tsc -b && vite build --mode standalone && node scripts/copy-standalone.mjs",
+    "test:standalone": "node tests/standalone.mjs",
     "test": "node --import tsx --test --test-isolation=none tests/*.test.ts",
     "test:browser": "node tests/browser.mjs",
-    "format": "prettier --write src server tests *.json *.ts *.md index.html",
-    "format:check": "prettier --check src server tests *.json *.ts *.md index.html"
+    "format": "prettier --write src server scripts tests *.json *.ts *.md",
+    "format:check": "prettier --check src server scripts tests *.json *.ts *.md"
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "^5.3.0",
@@ -34,6 +36,7 @@
     "prettier": "^3.9.10",
     "tsx": "^4.20.0",
     "typescript": "~5.9.3",
-    "vite": "^7.1.7"
+    "vite": "^7.1.7",
+    "vite-plugin-singlefile": "^2.3.4"
   }
 }
