@@ -45,6 +45,10 @@ export interface Property {
   photos: string[];
 }
 export interface Comparable {
+  builtYear?: number | null;
+  newBuildRate?: number;
+  buildingConditionPercent?: number;
+  buildingEstimateSource?: string;
   id: string;
   title: string;
   address: string;
@@ -196,6 +200,23 @@ export function validateProperty(p: Property) {
   return issues;
 }
 export function validateComparable(c: Comparable) {
+  if (
+    c.builtYear !== undefined &&
+    c.builtYear !== null &&
+    (!Number.isInteger(c.builtYear) ||
+      c.builtYear < Number(today().slice(0, 4)) - 200 ||
+      c.builtYear > Number(today().slice(0, 4)))
+  )
+    return 'Estimasi tahun bangunan pembanding tidak valid.';
+  if (c.newBuildRate !== undefined && (!Number.isFinite(c.newBuildRate) || c.newBuildRate <= 0))
+    return 'Biaya bangun baru pembanding per m² harus positif.';
+  if (
+    c.buildingConditionPercent !== undefined &&
+    (!Number.isFinite(c.buildingConditionPercent) ||
+      c.buildingConditionPercent < 0 ||
+      c.buildingConditionPercent > 100)
+  )
+    return 'Faktor kondisi pembanding harus 0–100%.';
   if (!c.title.trim() || !c.address.trim() || !c.area.trim() || !c.source.trim())
     return 'Nama, alamat, area, dan sumber wajib diisi.';
   if (![c.price, c.land, c.building].every(positive))

@@ -20,6 +20,10 @@ export const COMPARABLE_CSV_COLUMNS = [
   'url',
   'observedAt',
   'priceType',
+  'builtYear',
+  'newBuildRate',
+  'buildingConditionPercent',
+  'buildingEstimateSource',
 ] as const;
 
 /** Parse and validate the whole batch before committing anything to browser storage. */
@@ -76,6 +80,14 @@ export function parseComparableCsv(text: string): { records: Comparable[]; error
       url: row.url?.trim() || '',
       observedAt: row.observedAt?.trim() || '',
       priceType: (row.priceType?.trim() || 'Penawaran') as Comparable['priceType'],
+      ...(row.builtYear?.trim() ? { builtYear: Number(row.builtYear) } : {}),
+      ...(row.newBuildRate?.trim() ? { newBuildRate: Number(row.newBuildRate) } : {}),
+      ...(row.buildingConditionPercent?.trim()
+        ? { buildingConditionPercent: Number(row.buildingConditionPercent) }
+        : {}),
+      ...(row.buildingEstimateSource?.trim()
+        ? { buildingEstimateSource: row.buildingEstimateSource.trim() }
+        : {}),
       enabled: true,
       // Imported AI claims cannot establish independent verification, even if the CSV adds a "verified" column.
       verified: false,

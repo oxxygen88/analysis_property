@@ -6,7 +6,7 @@ Dashboard V1 dipertahankan: detail properti, data pembanding, estimasi harga lok
 
 Buka **Analisis harga** atau klik **Atur metode tanah + bangunan** di Ringkasan.
 
-1. Pilih **Harga per m² manual + sumber** untuk simulasi cepat, atau **Rata-rata referensi tanah murni**. Harga tanah tidak diperoleh dengan membagi harga rumah total dengan luas tanah.
+1. Pilih **Ekstraksi dari pembanding rumah yang tersimpan** untuk memakai CSV rumah yang sudah diimpor. Lengkapi estimasi tahun bangunan, biaya bangun **baru** per m², dan faktor kondisi jika kondisi belum diketahui. Harga tanah tiap rumah = `(harga total rumah − nilai bangunan setelah susut) ÷ LT`. Tidak perlu mencari kavling baru. Pilihan harga tanah manual dan referensi kavling tetap tersedia.
 2. Isi biaya pengganti bangunan baru per m² dan sumber/asumsinya (misalnya penawaran kontraktor dengan spesifikasi setara).
 3. Isi umur efektif. Kosong berarti tahun sekarang dikurangi tahun dibangun; bangunan baru = 0. Tahun renovasi tidak otomatis menghapus umur bangunan. Gunakan umur efektif berdasarkan cakupan renovasi dan inspeksi.
 4. Tinjau penyusutan linear tahunan, nilai sisa akibat umur, dan faktor kondisi. Preset kondisi adalah contoh asumsi dan dapat diubah. Jangan menghitung kerusakan dua kali lewat umur efektif dan faktor kondisi.
@@ -15,7 +15,9 @@ Buka **Analisis harga** atau klik **Atur metode tanah + bangunan** di Ringkasan.
 7. **Gunakan metode pembanding rumah V1** mengaktifkan kembali metode lama tanpa menghapus referensi tanah, asumsi, atau pembanding rumah yang tersimpan.
 
 ```text
-Harga tanah/m² = rata-rata aritmetika (harga total kavling ÷ LT kavling) dalam satu kelompok harga
+Nilai bangunan pembanding = LB × biaya bangun baru/m² × retensi umur × faktor kondisi
+Harga tanah pembanding/m² = (harga total rumah − nilai bangunan pembanding) ÷ LT
+Harga tanah rata-rata/m² = rata-rata aritmetika harga tanah pembanding/m² dalam satu kelompok harga
 Nilai tanah = LT subjek × harga tanah/m²
 Retensi umur = maks(nilai sisa, 1 − umur efektif × susut linear tahunan)
 Nilai bangunan = LB subjek × biaya bangun baru/m² × retensi umur × faktor kondisi
@@ -28,6 +30,22 @@ Tanah **tidak disusutkan**. Contoh uji: LT 100 m² × Rp10 juta + LB 100 m² × 
 Default 2%/tahun adalah skenario `1/50` sebelum batas nilai sisa 20%, **bukan tarif penyusutan resmi atau standar pasar Indonesia yang telah diverifikasi**. Nilai sisa membatasi penyusutan akibat umur; faktor kondisi dapat menurunkannya lebih lanjut. Contoh koreksi tusuk sate 5%, banjir 10%, dan preset kondisi 100/90/70% juga merupakan asumsi yang dapat diubah. Tidak ada diskon 180 hari otomatis. Penyusutan 5–10% dapat dimasukkan pengguna bila beralasan; tidak dipaksakan untuk semua bangunan. Pendekatan biaya perlu kalibrasi dengan inspeksi dan bukti pasar; hasil diberi label **Simulasi asumsi**, bukan penilaian KJPP atau jaminan harga transaksi.
 
 Metode ini mendukung rumah tapak/ruko serta tanah kavling tanpa komponen bangunan. Apartemen belum didukung. Sertifikat tanah yang berbeda/belum diketahui diberi peringatan, bukan diblokir seperti pembanding rumah V1; aplikasi belum menghitung koreksi legalitas. Data yang tidak lengkap atau risiko belum ditentukan tetap menghasilkan penjelasan, bukan angka tebakan.
+
+### Ekstraksi dari rumah pembanding yang sudah diimpor
+
+Pada **Analisis harga → Sumber harga tanah**, pilih **Ekstraksi dari pembanding rumah yang tersimpan**. Panel menampilkan semua rumah yang tersimpan, field yang masih kurang, nilai bangunan tersusut, sisa nilai tanah, harga tanah/m², dan alasan setiap baris digunakan/dikeluarkan.
+
+- Klik **Lengkapi bangunan [nama rumah]** untuk mengisi `builtYear` (estimasi tahun), `newBuildRate` (biaya pengganti bangunan baru Rp/m²), `buildingConditionPercent` (opsional 0–100), dan `buildingEstimateSource` (dasar estimasi).
+- Data lama tidak diubah otomatis. Kolom baru opsional; CSV lama tetap dapat diimpor. Kondisi yang diketahui memakai contoh faktor 100/90/70% jika tidak ada input eksplisit; kondisi belum diketahui memerlukan faktor pengguna, bukan dianggap siap huni.
+- Untuk beberapa rumah yang memang sekelas, aktifkan **Gunakan asumsi bersama untuk field pembanding yang kosong**. Isi estimasi tahun, biaya bangun baru/m², faktor kondisi jika diperlukan, dan dasar asumsi. Ini hanya fallback untuk field kosong (faktor kondisi bersama hanya bila kondisi iklan belum diketahui), tidak menulis ulang sumber asli, tidak menimpa input per rumah, dan tidak memverifikasi data iklan. Nonaktifkan untuk kembali hanya ke input per rumah.
+- Umur pembanding dihitung dari tahun acuan WIB dikurangi tahun bangunan. Penyusutan linear dan nilai sisa mengikuti parameter simulasi yang terlihat pada form. Tahun renovasi subjek tidak diterapkan kepada pembanding.
+- Rata-rata **tanah/m²**, **bangunan baru/m²**, dan **bangunan setelah susut/m²** dihitung terpisah dari rumah dalam kelompok harga yang sama. Tidak membagi harga rumah total dengan LT/LB untuk mengklaim harga komponen.
+- Tombol **Gunakan rata-rata biaya bangun untuk properti saya** hanya menyalin biaya bangun **baru**; umur/kondisi subjek diperhitungkan sendiri agar penyusutan tidak dihitung dua kali. Sesuaikan kelas dan spesifikasi subjek bila berbeda.
+- Sisa nilai tanah nol/negatif atau parameter tidak valid dikeluarkan disertai alasan; tidak dijepit ke nol atau dimasukkan rata-rata. Filter lokasi, umur data, pilihan baris, duplikat dan bukti transaksi tetap diterapkan. Sertifikat berbeda/belum diketahui diberi peringatan, tanpa otomatis menaksir koreksi legalitas.
+- Harga penawaran dan transaksi tidak dicampur; tiga transaksi diperiksa mendapat prioritas, jika belum ada gunakan penawaran, atau kelompok transaksi yang ada bila tanpa penawaran. Satu/dua rumah memberi simulasi awal berlabel bukti terbatas.
+- Ekstraksi adalah estimasi sisa, bukan observasi tanah murni: kesalahan biaya/umur/kondisi akan mengubah harga tanah. Rincian dan asumsi disertakan pada prompt harga, PDF dan PowerPoint. Hindari koreksi risiko dua kali jika risiko sudah tercermin pada harga tanah hasil ekstraksi.
+
+Contoh ilustrasi: rumah Rp2 miliar, LT 100 m², LB 100 m², biaya baru Rp7,5 juta/m², umur 10 tahun, susut 2%/tahun, kondisi 100%. Nilai bangunan = Rp750 juta × 80% = Rp600 juta; estimasi tanah = `(Rp2 miliar − Rp600 juta) ÷ 100` = **Rp14 juta/m²**. Ini contoh hitung, bukan data pasar nyata.
 
 ### Riset dan CSV referensi tanah
 
@@ -92,10 +110,11 @@ Hasil AI **tidak otomatis mengubah harga iklan atau estimasi lokal**. Tinjau buk
 ## Skema CSV
 
 ```csv
-title,address,area,cluster,lat,lng,land,building,beds,baths,price,condition,certificate,source,url,observedAt,priceType
+title,address,area,cluster,lat,lng,land,building,beds,baths,price,condition,certificate,source,url,observedAt,priceType,builtYear,newBuildRate,buildingConditionPercent,buildingEstimateSource
 ```
 
 - Harga rupiah penuh tanpa `Rp` atau pemisah ribuan; luas dalam m²; koordinat opsional memakai titik desimal dan diisi berpasangan; tanggal `YYYY-MM-DD` yang tidak berada di masa depan.
+- `builtYear`, `newBuildRate`, `buildingConditionPercent`, `buildingEstimateSource` opsional untuk ekstraksi nilai tanah dari rumah. Tahun harus masuk akal dan tidak di masa depan; biaya baru/m² positif; faktor kondisi 0–100%. Kosong tetap belum diketahui dan tidak menghalangi impor CSV lama.
 - `beds` dan `baths` mendukung `4+1` / `3+1`. `baths` opsional untuk kompatibilitas CSV lama.
 - `condition`: `Siap huni`, `Perlu renovasi ringan`, `Perlu renovasi besar`, atau `Belum diketahui`. Tidak diisi berarti belum diketahui, bukan dianggap siap huni.
 - `certificate`: `SHM`, `HGB`, atau `Lainnya / belum diketahui`. Tidak diisi tidak dianggap SHM.

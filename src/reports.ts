@@ -45,7 +45,7 @@ export function reportSections(project: Project) {
           ? `${a.method === 'cost' ? 'Rentang skenario biaya (bukan transaksi)' : 'Rentang indikasi'}: ${rupiah(a.low)} - ${rupiah(a.high!)}`
           : '',
         `Harga iklan saat ini: ${p.asking ? rupiah(p.asking) : 'Belum ditetapkan'}`,
-        `Kualitas bukti: ${a.confidence} | ${a.method === 'cost' ? 'Referensi tanah dasar' : 'Pembanding dasar harga'}: ${a.count}${a.method === 'cost' && project.cost?.landMode === 'manual' ? ' (harga tanah manual, lihat sumber/asumsi)' : ''}`,
+        `Kualitas bukti: ${a.confidence} | ${a.method === 'cost' ? (project.cost?.landMode === 'houses' ? 'Rumah dasar ekstraksi' : 'Referensi tanah dasar') : 'Pembanding dasar harga'}: ${a.count}${a.method === 'cost' && project.cost?.landMode === 'manual' ? ' (harga tanah manual, lihat sumber/asumsi)' : ''}`,
         `Dasar: ${a.method === 'cost' ? 'Simulasi nilai tanah + biaya bangunan tersusut, bukan bukti transaksi' : a.transactionCount >= 3 ? 'transaksi yang ditandai terverifikasi oleh pengguna' : 'harga penawaran, bukan bukti transaksi'}.`,
         ...a.issues,
       ],
@@ -58,12 +58,17 @@ export function reportSections(project: Project) {
     { title: 'Kebutuhan calon pembeli', lines: [insight.audience] },
     {
       title: 'Pembanding dan jejak sumber',
-      lines: a.rows.length
-        ? a.rows.map(
-            (r) =>
-              `${r.comparable.title} | ${rupiah(r.comparable.price)} | ${r.comparable.priceType} | ${r.included ? 'Lolos filter' : r.reason} | ${r.comparable.source} | ${shortDate(r.comparable.observedAt)}${r.comparable.url ? ` | ${r.comparable.url}` : ' | Tanpa tautan sumber'}`,
-          )
-        : ['Belum ada pembanding.'],
+      lines:
+        a.method === 'cost'
+          ? [
+              'Jejak sumber dan status setiap referensi tercantum pada bagian rincian tanah + bangunan di atas.',
+            ]
+          : a.rows.length
+            ? a.rows.map(
+                (r) =>
+                  `${r.comparable.title} | ${rupiah(r.comparable.price)} | ${r.comparable.priceType} | ${r.included ? 'Lolos filter' : r.reason} | ${r.comparable.source} | ${shortDate(r.comparable.observedAt)}${r.comparable.url ? ` | ${r.comparable.url}` : ' | Tanpa tautan sumber'}`,
+              )
+            : ['Belum ada pembanding.'],
     },
     {
       title: 'Respons pemasaran',
@@ -86,7 +91,7 @@ export function reportSections(project: Project) {
       lines:
         a.method === 'cost'
           ? [
-              ...costReportLines(project).slice(0, 7),
+              'Metode aktif: tanah + bangunan tersusut. Rincian asumsi, perhitungan per pembanding, sumber dan batasan tercantum pada bagian rincian tanah + bangunan.',
               '180 hari adalah panduan evaluasi, bukan jaminan penjualan. Laporan bukan penilaian resmi KJPP. Harga minimum dan catatan internal tidak disertakan.',
               `Dibuat ${shortDate(today())}.`,
             ]

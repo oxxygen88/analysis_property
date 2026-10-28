@@ -554,13 +554,21 @@ export default function App() {
               <div className="stats-grid">
                 <Stat
                   icon={Layers3}
-                  label={isCost ? 'Referensi tanah dasar' : 'Pembanding relevan'}
+                  label={
+                    isCost
+                      ? project.cost?.landMode === 'houses'
+                        ? 'Rumah dasar ekstraksi'
+                        : 'Referensi tanah dasar'
+                      : 'Pembanding relevan'
+                  }
                   value={`${a.count}`}
                   detail={
                     isCost
                       ? project.cost?.landMode === 'manual'
                         ? 'Harga tanah manual; lihat sumber/asumsi'
-                        : `dari ${project.landReferences?.length || 0} referensi tanah`
+                        : project.cost?.landMode === 'houses'
+                          ? `dari ${project.comparables.length} rumah tersimpan`
+                          : `dari ${project.landReferences?.length || 0} referensi tanah`
                       : `dari ${project.comparables.length} data tersimpan`
                   }
                   badge="Dasar analisis"
@@ -705,8 +713,9 @@ export default function App() {
                 <div>
                   <h2>Referensi tanah untuk metode baru</h2>
                   <p>
-                    CSV tanah murni memiliki format terpisah dari CSV rumah V1. Kelola referensi dan
-                    asumsi tanah pada Analisis harga.
+                    Pembanding rumah di bawah dapat dipakai untuk menaksir harga tanah: lengkapi
+                    tahun bangunan dan biaya bangun baru per m² pada Analisis harga. Harga tanah
+                    dihitung dari sisa harga rumah setelah nilai bangunan dikurangi.
                   </p>
                 </div>
                 <Button variant="secondary" onClick={() => go('pricing')}>
@@ -728,6 +737,7 @@ export default function App() {
                 update={setProject}
                 onPrompt={() => openPrompt('land')}
                 onProperty={() => go('property')}
+                onHousePrompt={() => openPrompt('research')}
                 notify={setToast}
               />
               {!isCost && project.comparables.length > 0 && a.suggested === null && (
@@ -1303,7 +1313,12 @@ function Pricing({
             <i />
           </div>
           <Tag tone="gray">
-            {a.count} {a.method === 'cost' ? 'referensi tanah' : 'pembanding dasar harga'}
+            {a.count}{' '}
+            {a.method === 'cost'
+              ? project.cost?.landMode === 'houses'
+                ? 'rumah dasar ekstraksi'
+                : 'referensi tanah'
+              : 'pembanding dasar harga'}
           </Tag>
         </section>
         <section className="card evidence-card">

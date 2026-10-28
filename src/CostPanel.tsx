@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import type { Project } from './domain';
+import type { Project, Comparable } from './domain';
+import { HouseExtraction } from './HouseExtraction';
+import { ComparableModal } from './inputs';
 import { rupiah, today, safeUrl } from './domain';
 import {
   costValuation,
@@ -18,12 +20,14 @@ export function CostPanel({
   update,
   onPrompt,
   onProperty,
+  onHousePrompt,
   notify,
 }: {
   project: Project;
   update: React.Dispatch<React.SetStateAction<Project>>;
   onPrompt: () => void;
   onProperty: () => void;
+  onHousePrompt: () => void;
   notify: (s: string) => void;
 }) {
   const [draft, setDraft] = useState<CostSettings>(() => ({
@@ -41,6 +45,7 @@ export function CostPanel({
   const [paste, setPaste] = useState(false);
   const [edit, setEdit] = useState<LandReference | null>(null);
   const [error, setError] = useState('');
+  const [editingHouse, setEditingHouse] = useState<Comparable | null>(null);
   const preview = costValuation({ ...project, cost: draft });
   const active = project.valuationMethod === 'cost';
   const set = <K extends keyof CostSettings>(key: K, value: CostSettings[K]) =>
@@ -104,6 +109,13 @@ export function CostPanel({
         </Button>
       </div>
       <Notice>{COST_LIMITATION}</Notice>
+      {draft.landMode !== 'houses' && (
+        <div className="cost-actions">
+          <Button variant="secondary" onClick={() => set('landMode', 'houses')}>
+            Gunakan pembanding rumah yang sudah diimpor
+          </Button>
+        </div>
+      )}
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -122,6 +134,7 @@ export function CostPanel({
               value={draft.landMode}
               onChange={(e) => set('landMode', e.target.value as CostSettings['landMode'])}
             >
+              <option value="houses">Ekstraksi dari pembanding rumah yang tersimpan</option>
               <option value="references">Rata-rata referensi tanah murni</option>
               <option value="manual">Harga per m² manual + sumber</option>
             </select>
@@ -183,6 +196,15 @@ export function CostPanel({
           kondisi bangunan pada referensi kavling. Sertifikat berbeda/belum diketahui diberi
           peringatan.
         </p>
+        {draft.landMode === 'houses' && (
+          <HouseExtraction
+            project={project}
+            settings={draft}
+            change={setDraft}
+            onEdit={setEditingHouse}
+            onPrompt={onHousePrompt}
+          />
+        )}
         <h3>2. Biaya dan penyusutan bangunan</h3>
         <p>
           Kondisi menurut Detail properti: <strong>{project.property.condition}</strong>. Preset
@@ -476,9 +498,9 @@ export function CostPanel({
         </p>
       )}
       <p>
-        Jangan masukkan harga rumah total sebagai harga tanah. Referensi rumah V1 tidak dikonversi
-        otomatis. Duplikat, data lama, dan lokasi tidak cocok tetap disaring. Untuk transaksi,
-        periksa bukti lalu tandai pada Ubah.
+        Jangan masukkan harga rumah total sebagai harga tanah. Untuk memakai rumah V1, pilih
+        Ekstraksi dari pembanding rumah lalu lengkapi asumsi bangunannya. Duplikat, data lama, dan
+        lokasi tidak cocok tetap disaring. Untuk transaksi, periksa bukti lalu tandai pada Ubah.
       </p>
       {refs.length > 0 && (
         <div className="table-scroll">
@@ -556,6 +578,21 @@ export function CostPanel({
             </tbody>
           </table>
         </div>
+      )}
+      {editingHouse && (
+        <ComparableModal
+          property={project.property}
+          initial={editingHouse}
+          close={() => setEditingHouse(null)}
+          save={(value) => {
+            update((s) => ({
+              ...s,
+              comparables: s.comparables.map((c) => (c.id === value.id ? value : c)),
+            }));
+            setEditingHouse(null);
+            notify('Asumsi bangunan pembanding diperbarui.');
+          }}
+        />
       )}
       {paste && (
         <Modal title="Tempel CSV referensi tanah" close={() => setPaste(false)}>

@@ -20,7 +20,12 @@ export interface LandReference {
   enabled: boolean;
 }
 export interface CostSettings {
-  landMode: 'references' | 'manual';
+  landMode: 'houses' | 'references' | 'manual';
+  useSharedHouseAssumptions?: boolean;
+  referenceBuiltYear?: number | null;
+  referenceBuildRate?: number;
+  referenceConditionPercent?: number;
+  referenceEstimateSource?: string;
   manualLandRate: number;
   manualLandSource: string;
   newBuildRate: number;
@@ -37,7 +42,11 @@ export interface CostSettings {
   notes: string;
 }
 export const defaultCostSettings = (): CostSettings => ({
-  landMode: 'references',
+  landMode: 'houses',
+  useSharedHouseAssumptions: false,
+  referenceBuiltYear: null,
+  referenceBuildRate: 0,
+  referenceEstimateSource: '',
   manualLandRate: 0,
   manualLandSource: '',
   newBuildRate: 0,
@@ -169,14 +178,146 @@ function km(p: Property, r: LandReference) {
     Math.cos(rad(p.lat!)) * Math.cos(rad(r.lat!)) * Math.sin(rad(r.lng! - p.lng!) / 2) ** 2;
   return 6371 * 2 * Math.atan2(Math.sqrt(v), Math.sqrt(Math.max(0, 1 - v)));
 }
+export function houseResiduals(project: Project, settings: CostSettings) {
+  const p = project.property,
+    s = settings;
+  const year = Number(today().slice(0, 4));
+  const seen = new Set<string>(),
+    urls = new Set<string>();
+  const rows = project.comparables.map((reference) => {
+    const sharedYear = reference.builtYear == null && s.useSharedHouseAssumptions;
+    const sharedRate = reference.newBuildRate === undefined && s.useSharedHouseAssumptions;
+    const estimatedYear = reference.builtYear ?? (sharedYear ? s.referenceBuiltYear : null) ?? null;
+    const newRate =
+      reference.newBuildRate ?? (sharedRate ? s.referenceBuildRate : undefined) ?? null;
+    const categoryPercent = {
+      'Siap huni': 100,
+      'Perlu renovasi ringan': 90,
+      'Perlu renovasi besar': 70,
+      'Belum diketahui': null,
+    }[reference.condition];
+    const sharedCondition =
+      reference.buildingConditionPercent === undefined &&
+      categoryPercent == null &&
+      s.useSharedHouseAssumptions &&
+      s.referenceConditionPercent !== undefined;
+    const conditionPercent =
+      reference.buildingConditionPercent ??
+      categoryPercent ??
+      (sharedCondition ? s.referenceConditionPercent : undefined) ??
+      null;
+    const conditionFromCategory =
+      reference.buildingConditionPercent === undefined && categoryPercent != null;
+    const usedShared = !!(sharedYear || sharedRate || sharedCondition);
+    const age = estimatedYear === null ? null : year - estimatedYear;
+    const retained =
+      age === null
+        ? null
+        : Math.max(s.residualPercent / 100, 1 - (age * s.annualDepreciation) / 100);
+    const buildingValue =
+      retained !== null && newRate !== null && conditionPercent != null
+        ? (reference.building * newRate * retained * conditionPercent) / 100
+        : null;
+    const currentBuildingRate = buildingValue === null ? null : buildingValue / reference.building;
+    const residualLandValue = buildingValue === null ? null : reference.price - buildingValue;
+    const rate = residualLandValue === null ? null : residualLandValue / reference.land;
+    const k = `${key(reference.address)}:${reference.land}:${reference.building}`,
+      u = urlKey(reference.url);
+    let reason = '';
+    if (!reference.enabled) reason = 'Tidak dipilih';
+    else if (
+      !reference.title.trim() ||
+      !reference.address.trim() ||
+      !reference.area.trim() ||
+      !reference.source.trim() ||
+      ![reference.land, reference.building, reference.price].every(positive) ||
+      !validDate(reference.observedAt) ||
+      reference.observedAt > today() ||
+      !['Penawaran', 'Transaksi'].includes(reference.priceType)
+    )
+      reason = 'Data dasar pembanding belum valid';
+    else if (reference.url && !/^https?:\/\//i.test(reference.url))
+      reason = 'URL pembanding tidak valid';
+    else if (seen.has(k) || (u && urls.has(u))) reason = 'Duplikat rumah';
+    else if ((Date.parse(today()) - Date.parse(reference.observedAt)) / 86400000 > 180)
+      reason = 'Data lebih dari 180 hari';
+    else if (reference.priceType === 'Transaksi' && !reference.verified)
+      reason = 'Transaksi belum diverifikasi';
+    else if (project.settings.mode === 'area' && areaKey(reference.area) !== areaKey(p.area))
+      reason = 'Di luar area';
+    else if (
+      project.settings.mode === 'cluster' &&
+      (!p.cluster.trim() || clusterKey(reference.cluster) !== clusterKey(p.cluster))
+    )
+      reason = 'Cluster berbeda';
+    else if (
+      project.settings.mode === 'radius' &&
+      (km(p, reference) === null || km(p, reference)! > project.settings.radius)
+    )
+      reason = 'Di luar radius / koordinat belum tersedia';
+    else if (estimatedYear === null) reason = 'Isi estimasi tahun bangunan pembanding';
+    else if (!Number.isInteger(estimatedYear) || estimatedYear > year || estimatedYear < year - 200)
+      reason = 'Tahun bangunan pembanding tidak valid';
+    else if (newRate === null || !positive(newRate))
+      reason = 'Isi biaya bangun baru pembanding per m²';
+    else if (conditionPercent == null || !between(conditionPercent, 0, 100))
+      reason = 'Isi faktor kondisi pembanding (0–100%)';
+    else if (usedShared && !s.referenceEstimateSource?.trim())
+      reason = 'Isi dasar asumsi bersama pembanding';
+    else if (!between(s.annualDepreciation, 0, 20) || !between(s.residualPercent, 0, 100))
+      reason = 'Parameter penyusutan tidak valid';
+    else if (
+      residualLandValue === null ||
+      !positive(residualLandValue) ||
+      rate === null ||
+      !positive(rate) ||
+      buildingValue === null ||
+      !Number.isFinite(buildingValue)
+    )
+      reason = 'Sisa nilai tanah nol/negatif/tidak valid; tinjau biaya dan umur';
+    if (!reason) {
+      seen.add(k);
+      if (u) urls.add(u);
+    }
+    return {
+      reference,
+      included: !reason,
+      reason: reason || 'Lolos ekstraksi',
+      estimatedYear,
+      newRate,
+      conditionPercent,
+      age,
+      retained,
+      buildingValue,
+      currentBuildingRate,
+      residualLandValue,
+      rate,
+      usedShared,
+      conditionFromCategory,
+    };
+  });
+  const eligible = rows.filter((r) => r.included),
+    transactions = eligible.filter((r) => r.reference.priceType === 'Transaksi'),
+    asking = eligible.filter((r) => r.reference.priceType === 'Penawaran');
+  const basis = transactions.length >= 3 ? transactions : asking.length ? asking : transactions;
+  const mean = (values: number[]) =>
+    values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
+  return {
+    rows,
+    basis,
+    landRate: mean(basis.map((r) => r.rate!)),
+    newBuildRate: mean(basis.map((r) => r.newRate!)),
+    currentBuildingRate: mean(basis.map((r) => r.currentBuildingRate!)),
+  };
+}
 export function costValuation(project: Project) {
   const p = project.property;
   const s = { ...defaultCostSettings(), ...project.cost };
   const issues: string[] = [];
   const warnings: string[] = [];
-  if (!['manual', 'references'].includes(s.landMode))
+  if (!['manual', 'references', 'houses'].includes(s.landMode))
     issues.push('Pilih sumber harga tanah yang valid.');
-  if (s.landMode === 'references' && project.settings.mode === 'radius') {
+  if (s.landMode !== 'manual' && project.settings.mode === 'radius') {
     if (!validCoords(p.lat, p.lng) || !positive(project.settings.radius))
       issues.push('Mode radius tanah memerlukan kedua koordinat subjek dan radius positif.');
   }
@@ -221,6 +362,7 @@ export function costValuation(project: Project) {
     );
   const addresses = new Set<string>(),
     urls = new Set<string>();
+  const houses = houseResiduals(project, s);
   const rows = (project.landReferences || []).map((reference) => {
     let reason = validateLandReference(reference);
     const k = `${key(reference.title)}:${key(reference.area)}:${key(reference.cluster)}:${reference.land}`;
@@ -265,14 +407,15 @@ export function costValuation(project: Project) {
   const asking = eligible.filter((r) => r.reference.priceType === 'Penawaran');
   // Prefer a credible transaction group; never average asking and transaction groups together.
   const basis =
-    s.landMode === 'manual'
+    s.landMode !== 'references'
       ? []
       : transactions.length >= 3
         ? transactions
         : asking.length
           ? asking
           : transactions;
-  const rates = basis.map((r) => r.rate);
+  const rates =
+    s.landMode === 'houses' ? houses.basis.map((r) => r.rate!) : basis.map((r) => r.rate);
   let landRate: number | null = null;
   if (s.landMode === 'manual') {
     if (!positive(s.manualLandRate) || !s.manualLandSource.trim())
@@ -281,6 +424,31 @@ export function costValuation(project: Project) {
     warnings.push(
       'Harga tanah manual adalah asumsi pengguna; bukan rata-rata referensi yang dihitung aplikasi.',
     );
+  } else if (s.landMode === 'houses') {
+    landRate = houses.landRate;
+    if (landRate === null)
+      issues.push(
+        'Lengkapi tahun bangunan, biaya bangun baru per m², dan faktor kondisi pembanding rumah yang relevan. Bisa per rumah atau memakai asumsi bersama yang Anda aktifkan.',
+      );
+    warnings.push(
+      'Harga tanah hasil ekstraksi adalah estimasi sisa harga rumah dikurangi nilai bangunan tersusut, bukan observasi harga tanah murni. Biaya/asumsi bangunan mempengaruhi hasil langsung.',
+    );
+    if (houses.basis.length > 0 && houses.basis.length < 3)
+      warnings.push(
+        `Hanya ${houses.basis.length} rumah menjadi dasar ekstraksi; hasil adalah simulasi awal dengan bukti terbatas.`,
+      );
+    if (houses.basis.some((r) => r.usedShared))
+      warnings.push(
+        'Sebagian pembanding memakai asumsi bersama yang diaktifkan pengguna; bukan tahun/biaya terverifikasi pada sumber iklan.',
+      );
+    if (houses.basis.some((r) => r.reference.certificate !== p.certificate))
+      warnings.push(
+        'Sertifikat pembanding rumah berbeda/belum diketahui; periksa kesetaraan hak. Ekstraksi tidak menerapkan koreksi legalitas otomatis.',
+      );
+    if (houses.basis.some((r) => r.conditionFromCategory))
+      warnings.push(
+        'Faktor kondisi pembanding dari kategori memakai contoh 100/90/70%; dapat ditimpa dengan input per rumah atau asumsi bersama.',
+      );
   } else if (rates.length) {
     landRate = rates.reduce((a, b) => a + b, 0) / rates.length;
     if (basis.length < 3)
@@ -317,9 +485,10 @@ export function costValuation(project: Project) {
     issues.push('Nilai indikatif harus lebih dari nol.');
   const round = (n: number) => Math.max(1, Math.round(n / 1e6)) * 1e6;
   const ready = issues.length === 0;
-  const endpoints = s.landMode === 'references' && rates.length ? rates : [landRate ?? 0];
+  const endpoints = s.landMode !== 'manual' && rates.length ? rates : [landRate ?? 0];
   return {
     settings: s,
+    houses,
     rows,
     basis,
     issues,
@@ -350,8 +519,15 @@ export function costAnalysis(project: Project): Analysis {
     method: 'cost',
     cost: c,
     rows: [],
-    count: c.settings.landMode === 'references' ? c.basis.length : 0,
-    transactionCount: c.basis.filter((r) => r.reference.priceType === 'Transaksi').length,
+    count:
+      c.settings.landMode === 'houses'
+        ? c.houses.basis.length
+        : c.settings.landMode === 'references'
+          ? c.basis.length
+          : 0,
+    transactionCount: (c.settings.landMode === 'houses' ? c.houses.basis : c.basis).filter(
+      (r) => r.reference.priceType === 'Transaksi',
+    ).length,
     low: c.low,
     high: c.high,
     suggested: c.suggested,
@@ -371,7 +547,22 @@ export function costReportLines(project: Project) {
     }).format(n);
   return [
     COST_LIMITATION,
-    `Dasar tanah: ${s.landMode === 'manual' ? `manual, ${s.manualLandSource}` : `rata-rata aritmetika ${c.basis.length} referensi tanah dalam satu kelompok harga`}. Harga/m2: ${c.landRate === null ? 'belum tersedia' : rp(c.landRate)}. Nilai tanah: ${rp(c.landValue)}.`,
+    ...(s.landMode === 'houses'
+      ? [
+          'Metode ekstraksi rumah: nilai bangunan pembanding = LB × biaya bangun baru/m2 × retensi umur × faktor kondisi. Nilai tanah pembanding = harga total rumah − nilai bangunan pembanding; harga tanah/m2 = nilai tanah pembanding ÷ LT. Rata-rata aritmetika hanya pada satu kelompok harga yang lolos filter.',
+          `Rata-rata bangunan baru/m2 referensi: ${c.houses.newBuildRate === null ? 'belum tersedia' : rp(c.houses.newBuildRate)}; setelah susut/kondisi: ${c.houses.currentBuildingRate === null ? 'belum tersedia' : rp(c.houses.currentBuildingRate)}. Ini terpisah dari harga tanah/m2.`,
+          ...(s.useSharedHouseAssumptions
+            ? [
+                `Asumsi bersama pembanding (hanya field kosong): tahun ${s.referenceBuiltYear ?? 'belum diisi'}, biaya baru ${s.referenceBuildRate ? rp(s.referenceBuildRate) : 'belum diisi'}/m2, faktor kondisi ${s.referenceConditionPercent ?? 'mengikuti kategori'}%; dasar: ${s.referenceEstimateSource || 'belum diisi'}.`,
+              ]
+            : []),
+          ...c.houses.rows.map(
+            (r) =>
+              `${r.reference.title} | Harga rumah ${rp(r.reference.price)} | LT/LB ${r.reference.land}/${r.reference.building} m2 | Tahun ${r.estimatedYear ?? 'belum diisi'} | Biaya baru/m2 ${r.newRate === null ? 'belum diisi' : rp(r.newRate)} | Faktor kondisi ${r.conditionPercent ?? 'belum diisi'}% | Nilai bangunan ${r.buildingValue === null ? 'belum tersedia' : rp(r.buildingValue)} | Sisa tanah ${r.residualLandValue === null ? 'belum tersedia' : rp(r.residualLandValue)} | Tanah/m2 ${r.rate === null ? 'belum tersedia' : rp(r.rate)} | ${c.houses.basis.includes(r) ? 'Dasar rata-rata' : r.reason} | ${r.usedShared ? 'Ada asumsi bersama' : 'Input per rumah/kategori kondisi'} | Dasar estimasi bangunan: ${r.reference.buildingEstimateSource || (r.usedShared ? s.referenceEstimateSource : 'Belum dirinci')} | ${r.reference.source} | ${r.reference.observedAt} | ${r.reference.priceType} | ${r.reference.certificate} | ${r.reference.url || 'Tanpa URL'}`,
+          ),
+        ]
+      : []),
+    `Dasar tanah: ${s.landMode === 'manual' ? `manual, ${s.manualLandSource}` : s.landMode === 'houses' ? `rata-rata ekstraksi ${c.houses.basis.length} pembanding rumah` : `rata-rata aritmetika ${c.basis.length} referensi tanah dalam satu kelompok harga`}. Harga/m2: ${c.landRate === null ? 'belum tersedia' : rp(c.landRate)}. Nilai tanah: ${rp(c.landValue)}.`,
     `Biaya bangun baru: ${rp(s.newBuildRate)}/m2. Sumber/asumsi: ${s.buildSource || 'belum diisi'}. Total baru: ${rp(c.buildingNew)}.`,
     `Umur efektif: ${c.age ?? 'belum diisi'} tahun; susut linear ${s.annualDepreciation}%/tahun; nilai sisa umur ${s.residualPercent}%; faktor kondisi ${s.conditionPercent}%. Nilai bangunan: ${rp(c.buildingValue)}.`,
     `Retensi umur = maks(nilai sisa, 1 - umur x susut tahunan). Penyusutan hanya pada bangunan. Kondisi dikalikan setelah retensi umur; hindari koreksi kerusakan dua kali melalui umur efektif dan kondisi.`,

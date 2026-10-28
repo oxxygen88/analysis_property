@@ -446,7 +446,9 @@ export function Comparables({
           </Notice>
         )}
       </section>
-      <AnalysisReadiness project={project} analysis={analysis} />
+      {project.valuationMethod !== 'cost' && (
+        <AnalysisReadiness project={project} analysis={analysis} />
+      )}
       <section className="card comparables-card">
         <div className="card-heading">
           <div>
@@ -454,8 +456,8 @@ export function Comparables({
               Data pembanding <Tag tone="gray">{project.comparables.length} data</Tag>
             </h2>
             <p>
-              {analysis.count} pembanding menjadi dasar estimasi lokal. Lengkapi dengan prompt
-              riset, lalu impor dan tinjau hasil CSV.
+              {analysis.count} pembanding menjadi dasar metode pembanding rumah V1. Lengkapi dengan
+              prompt riset, lalu impor dan tinjau hasil CSV.
             </p>
           </div>
           <div className="button-row">
@@ -701,7 +703,7 @@ export function Comparables({
   );
 }
 
-function ComparableModal({
+export function ComparableModal({
   close,
   save,
   property,
@@ -744,15 +746,22 @@ function ComparableModal({
         step={['lat', 'lng'].includes(key) ? 'any' : undefined}
         min={type === 'number' && !['lat', 'lng'].includes(key) ? 0 : undefined}
         max={type === 'date' ? today() : undefined}
-        value={c[key] === null || c[key] === 0 ? '' : String(c[key])}
+        value={
+          c[key] == null || (c[key] === 0 && key !== 'buildingConditionPercent')
+            ? ''
+            : String(c[key])
+        }
         onChange={(ev) =>
           setC((s) => ({
             ...s,
             [key]:
               type === 'number'
-                ? ev.target.value === '' && ['lat', 'lng'].includes(key)
-                  ? null
-                  : Number(ev.target.value)
+                ? ev.target.value === '' &&
+                  ['builtYear', 'newBuildRate', 'buildingConditionPercent'].includes(key)
+                  ? undefined
+                  : ev.target.value === '' && ['lat', 'lng'].includes(key)
+                    ? null
+                    : Number(ev.target.value)
                 : ev.target.value,
           }))
         }
@@ -786,6 +795,16 @@ function ComparableModal({
           {field('land', 'Luas tanah (m²) *', 'number', true)}
           {field('building', 'Luas bangunan (m²) *', 'number', true)}
           {field('price', 'Harga (Rp) *', 'number', true)}
+          {field('builtYear', 'Estimasi tahun bangunan pembanding', 'number')}
+          {field('newBuildRate', 'Biaya bangun baru pembanding (Rp/m²)', 'number')}
+          {field('buildingConditionPercent', 'Faktor kondisi pembanding (%)', 'number')}
+          {field('buildingEstimateSource', 'Dasar estimasi bangunan pembanding')}
+          <p>
+            Kosongkan informasi yang belum diketahui. Biaya di atas adalah pengganti bangunan baru
+            sekelas; nilai setelah susut dihitung dari tahun dan kondisi. Untuk perhitungan tanah
+            hasil ekstraksi, field kosong dapat memakai asumsi bersama yang Anda aktifkan pada
+            Analisis harga.
+          </p>
           <RoomInput
             label="Kamar tidur"
             main={c.beds}

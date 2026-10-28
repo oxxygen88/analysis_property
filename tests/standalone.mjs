@@ -5,6 +5,7 @@ import { chromium } from '@playwright/test';
 import { runHybridFlow } from './prompt-flow.mjs';
 import { runReadinessFlow } from './readiness-flow.mjs';
 import { runCostFlow } from './cost-flow.mjs';
+import { runExtractionFlow } from './extraction-flow.mjs';
 
 const html = await readFile(new URL('../index.html', import.meta.url));
 assert.ok(html.length > 100_000);
@@ -27,6 +28,7 @@ try {
   await runHybridFlow(url, 'hybrid-pages');
   await runReadinessFlow(url);
   await runCostFlow(url);
+  await runExtractionFlow(url);
   assert.deepEqual(unexpected, [], 'All JS, CSS, fonts, and icons must be embedded for Pages');
   const browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium',
