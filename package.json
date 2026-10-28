@@ -1,0 +1,39 @@
+{
+  "name": "ruangnilai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server/index.mjs",
+    "build": "tsc -b && vite build",
+    "start": "NODE_ENV=production node server/index.mjs",
+    "test": "node --import tsx --test --test-isolation=none tests/*.test.ts",
+    "test:browser": "node tests/browser.mjs",
+    "format": "prettier --write src server tests *.json *.ts *.md index.html",
+    "format:check": "prettier --check src server tests *.json *.ts *.md index.html"
+  },
+  "dependencies": {
+    "@fontsource-variable/dm-sans": "^5.3.0",
+    "@fontsource-variable/manrope": "^5.3.0",
+    "express": "^5.1.0",
+    "jspdf": "^3.0.4",
+    "lucide-react": "^0.468.0",
+    "papaparse": "^5.5.3",
+    "pptxgenjs": "^4.0.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "undici": "^7.30.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^24.0.0",
+    "@types/papaparse": "^5.3.16",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "prettier": "^3.9.10",
+    "tsx": "^4.20.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.7"
+  }
+}
