@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { chromium } from '@playwright/test';
 import { runHybridFlow } from './prompt-flow.mjs';
 import { runReadinessFlow } from './readiness-flow.mjs';
+import { runCostFlow } from './cost-flow.mjs';
 
 const html = await readFile(new URL('../index.html', import.meta.url));
 assert.ok(html.length > 100_000);
@@ -25,6 +26,7 @@ try {
   const url = `http://127.0.0.1:${server.address().port}/analysis_property/`;
   await runHybridFlow(url, 'hybrid-pages');
   await runReadinessFlow(url);
+  await runCostFlow(url);
   assert.deepEqual(unexpected, [], 'All JS, CSS, fonts, and icons must be embedded for Pages');
   const browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium',

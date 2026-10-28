@@ -1,4 +1,5 @@
 import { formatRooms } from './rooms';
+import { costReportLines } from './cost';
 import {
   analyze,
   evaluate,
@@ -37,14 +38,21 @@ export function reportSections(project: Project) {
       lines: [
         a.suggested
           ? `Harga pembukaan yang disarankan: ${rupiah(a.suggested)}`
-          : 'Rekomendasi belum tersedia: lengkapi properti dan minimal 3 pembanding yang memenuhi kriteria.',
-        a.low ? `Rentang indikasi: ${rupiah(a.low)} - ${rupiah(a.high!)}` : '',
+          : a.method === 'cost'
+            ? 'Simulasi belum tersedia: lengkapi asumsi tanah, bangunan, dan risiko.'
+            : 'Rekomendasi belum tersedia: lengkapi properti dan minimal 3 pembanding yang memenuhi kriteria.',
+        a.low
+          ? `${a.method === 'cost' ? 'Rentang skenario biaya (bukan transaksi)' : 'Rentang indikasi'}: ${rupiah(a.low)} - ${rupiah(a.high!)}`
+          : '',
         `Harga iklan saat ini: ${p.asking ? rupiah(p.asking) : 'Belum ditetapkan'}`,
-        `Kualitas bukti: ${a.confidence} | Pembanding dasar harga: ${a.count}`,
-        `Dasar: ${a.transactionCount >= 3 ? 'transaksi yang ditandai terverifikasi oleh pengguna' : 'harga penawaran, bukan bukti transaksi'}.`,
+        `Kualitas bukti: ${a.confidence} | ${a.method === 'cost' ? 'Referensi tanah dasar' : 'Pembanding dasar harga'}: ${a.count}${a.method === 'cost' && project.cost?.landMode === 'manual' ? ' (harga tanah manual, lihat sumber/asumsi)' : ''}`,
+        `Dasar: ${a.method === 'cost' ? 'Simulasi nilai tanah + biaya bangunan tersusut, bukan bukti transaksi' : a.transactionCount >= 3 ? 'transaksi yang ditandai terverifikasi oleh pengguna' : 'harga penawaran, bukan bukti transaksi'}.`,
         ...a.issues,
       ],
     },
+    ...(a.method === 'cost'
+      ? [{ title: 'Rincian tanah + bangunan dan jejak sumber', lines: costReportLines(project) }]
+      : []),
     { title: 'Kekuatan', lines: insight.strengths },
     { title: 'Kelemahan dan hal yang perlu diverifikasi', lines: insight.weaknesses },
     { title: 'Kebutuhan calon pembeli', lines: [insight.audience] },
@@ -75,15 +83,22 @@ export function reportSections(project: Project) {
     ...phases.map((p) => ({ title: `Hari ${p.days}: ${p.title}`, lines: [p.text, ...p.tasks] })),
     {
       title: 'Metode dan keterbatasan',
-      lines: [
-        'Penyesuaian luas: 65% rasio luas tanah + 35% rasio luas bangunan. Penyesuaian kondisi 4% per tingkat; gabungan dibatasi -20% sampai +20%. Bobot ini merupakan asumsi awal, belum dikalibrasi dengan transaksi lokal.',
-        'Rentang adalah kuartil 25-75% harga pembanding setelah penyesuaian. Harga pembukaan memakai persentil 35, dibulatkan Rp5 juta. Ini rentang indikatif, bukan interval keyakinan statistik.',
-        'Minimal 3 pembanding unik dengan jenis harga yang sama. Transaksi terverifikasi digunakan jika tersedia minimal 3; selain itu digunakan harga penawaran. Kedua kelompok tidak dicampur.',
-        'Data lebih dari 180 hari, duplikat yang terdeteksi, ukuran terlalu berbeda, serta sertifikat berbeda dikeluarkan. Duplikat lintas agen dengan alamat berbeda tetap perlu diperiksa pengguna.',
-        'Status verifikasi adalah penandaan pengguna, bukan pemeriksaan independen. Risiko, dokumen, dan fasilitas belum diverifikasi oleh aplikasi.',
-        '180 hari adalah panduan evaluasi, bukan jaminan penjualan. Laporan ini bukan penilaian resmi KJPP. Angka konversi tidak menjamin kesepakatan.',
-        `Dibuat ${shortDate(today())}. Harga minimum internal dan anggaran penjual tidak disertakan.`,
-      ],
+      lines:
+        a.method === 'cost'
+          ? [
+              ...costReportLines(project).slice(0, 7),
+              '180 hari adalah panduan evaluasi, bukan jaminan penjualan. Laporan bukan penilaian resmi KJPP. Harga minimum dan catatan internal tidak disertakan.',
+              `Dibuat ${shortDate(today())}.`,
+            ]
+          : [
+              'Penyesuaian luas: 65% rasio luas tanah + 35% rasio luas bangunan. Penyesuaian kondisi 4% per tingkat; gabungan dibatasi -20% sampai +20%. Bobot ini merupakan asumsi awal, belum dikalibrasi dengan transaksi lokal.',
+              'Rentang adalah kuartil 25-75% harga pembanding setelah penyesuaian. Harga pembukaan memakai persentil 35, dibulatkan Rp5 juta. Ini rentang indikatif, bukan interval keyakinan statistik.',
+              'Minimal 3 pembanding unik dengan jenis harga yang sama. Transaksi terverifikasi digunakan jika tersedia minimal 3; selain itu digunakan harga penawaran. Kedua kelompok tidak dicampur.',
+              'Data lebih dari 180 hari, duplikat yang terdeteksi, ukuran terlalu berbeda, serta sertifikat berbeda dikeluarkan. Duplikat lintas agen dengan alamat berbeda tetap perlu diperiksa pengguna.',
+              'Status verifikasi adalah penandaan pengguna, bukan pemeriksaan independen. Risiko, dokumen, dan fasilitas belum diverifikasi oleh aplikasi.',
+              '180 hari adalah panduan evaluasi, bukan jaminan penjualan. Laporan ini bukan penilaian resmi KJPP. Angka konversi tidak menjamin kesepakatan.',
+              `Dibuat ${shortDate(today())}. Harga minimum internal dan anggaran penjual tidak disertakan.`,
+            ],
     },
   ];
 }

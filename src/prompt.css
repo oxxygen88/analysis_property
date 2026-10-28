@@ -1918,3 +1918,88 @@
     font-size: 10px;
   }
 }
+
+.cost-panel {
+  margin-bottom: 24px;
+  min-width: 0;
+}
+.cost-panel h3 {
+  margin: 26px 0 14px;
+}
+.cost-panel p {
+  color: var(--text-muted, #758271);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.cost-panel .form-grid {
+  margin-bottom: 18px;
+}
+.cost-preview {
+  margin: 24px 0;
+  padding: 22px;
+  background: #f5f8f0;
+  border: 1px solid #e0e7d6;
+  border-radius: 12px;
+}
+.cost-preview h3 {
+  margin-top: 0;
+}
+.cost-preview dl {
+  margin: 18px 0;
+}
+.cost-preview dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 11px 0;
+  border-bottom: 1px solid #e0e7d6;
+}
+.cost-preview dt {
+  color: #5b6d60;
+}
+.cost-preview dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+.cost-preview li {
+  margin: 8px 0;
+}
+.cost-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0;
+}
+.cost-panel table td {
+  max-width: 290px;
+  overflow-wrap: anywhere;
+}
+.cost-panel table td .button {
+  white-space: normal;
+}
+@media (max-width: 640px) {
+  .cost-preview {
+    padding: 14px;
+  }
+  .cost-preview dl > div {
+    flex-direction: column;
+    gap: 5px;
+  }
+  .cost-preview dd {
+    text-align: left;
+  }
+  .cost-actions .button {
+    width: 100%;
+    justify-content: center;
+  }
+  .cost-panel .card-heading {
+    flex-wrap: wrap;
+  }
+}
+.cost-details p {
+  color: #617265;
+  line-height: 1.75;
+  margin: 14px 0;
+  overflow-wrap: anywhere;
+}

@@ -40,6 +40,7 @@ import {
 } from 'lucide-react';
 import {
   analyze,
+  analyzeMarket,
   compact,
   demoProject,
   emptyProject,
@@ -58,6 +59,8 @@ import { PropertyForm, Comparables, CampaignModal } from './inputs';
 import { Button, Tag, Empty, Notice, Modal, saveBlob } from './ui';
 import { PromptPanel } from './PromptPanel';
 import { AnalysisReadiness } from './AnalysisReadiness';
+import { CostPanel } from './CostPanel';
+import { costReportLines } from './cost';
 import { formatRooms } from './rooms';
 import type { PromptGoal } from './prompts';
 
@@ -156,6 +159,8 @@ export default function App() {
   const [storageError, setStorageError] = useState(false);
   const [exporting, setExporting] = useState('');
   const a = analyze(project);
+  const market = analyzeMarket(project);
+  const isCost = a.method === 'cost';
   const e = evaluate(project, a);
   const p = project.property;
   useEffect(() => {
@@ -290,7 +295,7 @@ export default function App() {
               <CalendarDays size={15} />
               {shortDate(today())}
             </span>
-            <Tag tone="green">V1 + PROMPT AI</Tag>
+            <Tag tone="green">V1 + TANAH/BANGUNAN</Tag>
             <span className="top-divider" />
             <button
               className="notification-button"
@@ -381,14 +386,14 @@ export default function App() {
                   {storageError ? 'Belum tersimpan' : 'Tersimpan di perangkat'}
                 </span>
               </div>
-              {project.comparables.length > 0 && a.suggested === null && (
+              {!isCost && project.comparables.length > 0 && a.suggested === null && (
                 <AnalysisReadiness
                   project={project}
                   analysis={a}
                   onReview={() => go('comparables')}
                 />
               )}
-              {project.comparables.length === 0 && (
+              {!isCost && project.comparables.length === 0 && (
                 <section className="card v1-prompt-bridge">
                   <div>
                     <h2>Harga belum tersedia? Mulai dari data pembanding.</h2>
@@ -403,6 +408,23 @@ export default function App() {
                   </Button>
                 </section>
               )}
+              <section className="card v1-prompt-bridge">
+                <div>
+                  <h2>
+                    {isCost
+                      ? 'Metode aktif: tanah + bangunan'
+                      : 'Baru: hitung nilai tanah + bangunan'}
+                  </h2>
+                  <p>
+                    {isCost
+                      ? a.suggested
+                        ? 'Hasil memakai asumsi tersimpan. Tinjau penyusutan dan koreksi sebelum menetapkan harga iklan.'
+                        : a.issues.join(' ')
+                      : 'Gunakan harga tanah per m², biaya bangun baru, umur, kondisi, tusuk sate, dan banjir. Data V1 Anda tetap tersimpan.'}
+                  </p>
+                </div>
+                <Button onClick={() => go('pricing')}>Atur metode tanah + bangunan</Button>
+              </section>
               <div className="hero-grid">
                 <section className="property-card card">
                   <div className="property-art">
@@ -474,9 +496,11 @@ export default function App() {
                     <Tag>
                       {project.demo
                         ? 'SIMULASI'
-                        : a.confidence === 'Belum cukup data'
-                          ? 'BELUM TERSEDIA'
-                          : 'INDIKASI HARGA'}
+                        : isCost && a.suggested
+                          ? 'SIMULASI BIAYA'
+                          : a.confidence === 'Belum cukup data'
+                            ? 'BELUM TERSEDIA'
+                            : 'INDIKASI HARGA'}
                     </Tag>
                   </div>
                   <p>Harga pembukaan yang disarankan</p>
@@ -484,24 +508,32 @@ export default function App() {
                     {a.suggested ? compact(a.suggested) : 'Belum tersedia'}
                     <span>
                       {a.suggested
-                        ? 'Posisi kompetitif untuk mulai menguji pasar'
-                        : 'Lengkapi data dan pembanding terlebih dahulu'}
+                        ? isCost
+                          ? 'Simulasi biaya untuk mulai menguji pasar'
+                          : 'Posisi kompetitif untuk mulai menguji pasar'
+                        : isCost
+                          ? 'Lengkapi asumsi tanah dan bangunan'
+                          : 'Lengkapi data dan pembanding terlebih dahulu'}
                     </span>
                   </div>
                   <div className="price-range">
-                    <span>Rentang indikasi pasar</span>
+                    <span>
+                      {isCost ? 'Rentang skenario tanah + bangunan' : 'Rentang indikasi pasar'}
+                    </span>
                     <strong>
                       {a.low
                         ? `${compact(a.low)} – ${compact(a.high!)}`
-                        : 'Minimal 3 pembanding sejenis'}
+                        : isCost
+                          ? 'Isi harga tanah dan asumsi bangunan'
+                          : 'Minimal 3 pembanding sejenis'}
                     </strong>
                     <div className="range-track">
                       <span />
                       <i />
                     </div>
                     <div className="range-label">
-                      <span>Kompetitif</span>
-                      <span>Optimistis</span>
+                      <span>{isCost ? 'Skenario tanah minimum' : 'Kompetitif'}</span>
+                      <span>{isCost ? 'Skenario tanah maksimum' : 'Optimistis'}</span>
                     </div>
                   </div>
                   <button className="hero-link" onClick={() => go('pricing')}>
@@ -510,19 +542,29 @@ export default function App() {
                   <small className="price-disclaimer">
                     <ShieldCheck size={13} />
                     Indikasi berbasis{' '}
-                    {a.transactionCount >= 3 ? 'transaksi input pengguna' : 'harga penawaran'},
-                    bukan penilaian resmi.
+                    {isCost
+                      ? 'asumsi tanah + bangunan'
+                      : a.transactionCount >= 3
+                        ? 'transaksi input pengguna'
+                        : 'harga penawaran'}
+                    , bukan penilaian resmi.
                   </small>
                 </section>
               </div>
               <div className="stats-grid">
                 <Stat
                   icon={Layers3}
-                  label="Pembanding relevan"
+                  label={isCost ? 'Referensi tanah dasar' : 'Pembanding relevan'}
                   value={`${a.count}`}
-                  detail={`dari ${project.comparables.length} data tersimpan`}
+                  detail={
+                    isCost
+                      ? project.cost?.landMode === 'manual'
+                        ? 'Harga tanah manual; lihat sumber/asumsi'
+                        : `dari ${project.landReferences?.length || 0} referensi tanah`
+                      : `dari ${project.comparables.length} data tersimpan`
+                  }
                   badge="Dasar analisis"
-                  onClick={() => go('comparables')}
+                  onClick={() => go(isCost ? 'pricing' : 'comparables')}
                 />
                 <Stat
                   icon={Eye}
@@ -553,31 +595,37 @@ export default function App() {
                 <section className="card market-card">
                   <div className="card-heading">
                     <div>
-                      <h2>Posisi harga di pasar</h2>
-                      <p>Bandingkan harga penawaran sebelum penyesuaian.</p>
+                      <h2>{isCost ? 'Komponen nilai properti' : 'Posisi harga di pasar'}</h2>
+                      <p>
+                        {isCost
+                          ? 'Nilai berdasarkan asumsi tersimpan, sebelum koreksi strategi jual.'
+                          : 'Bandingkan harga penawaran sebelum penyesuaian.'}
+                      </p>
                     </div>
                     <button className="subtle-link" onClick={() => go('pricing')}>
                       Lihat analisis <ArrowUpRight size={15} />
                     </button>
                   </div>
                   <PriceChart project={project} analysis={a} />
-                  <div className="chart-footer">
-                    <span>
-                      <i className="legend-dot muted" />
-                      Pembanding lolos filter
-                    </span>
-                    <span>
-                      <i className="legend-dot green-dot" />
-                      Rumah Anda
-                    </span>
-                    <Tag tone="gray">
-                      {project.settings.mode === 'radius'
-                        ? `Radius ${project.settings.radius} km`
-                        : project.settings.mode === 'cluster'
-                          ? 'Cluster yang sama'
-                          : p.area || 'Area belum diisi'}
-                    </Tag>
-                  </div>
+                  {!isCost && (
+                    <div className="chart-footer">
+                      <span>
+                        <i className="legend-dot muted" />
+                        Pembanding lolos filter
+                      </span>
+                      <span>
+                        <i className="legend-dot green-dot" />
+                        Rumah Anda
+                      </span>
+                      <Tag tone="gray">
+                        {project.settings.mode === 'radius'
+                          ? `Radius ${project.settings.radius} km`
+                          : project.settings.mode === 'cluster'
+                            ? 'Cluster yang sama'
+                            : p.area || 'Area belum diisi'}
+                      </Tag>
+                    </div>
+                  )}
                 </section>
                 <section className="card next-step">
                   <div className="next-step-top">
@@ -634,7 +682,7 @@ export default function App() {
               setProject={setProject}
               initialGoal={promptGoal}
               onEditProperty={() => go('property')}
-              onComparables={() => go('comparables')}
+              onComparables={(goal) => go(goal === 'land' ? 'pricing' : 'comparables')}
               notify={setToast}
             />
           )}
@@ -653,12 +701,36 @@ export default function App() {
                   Generate prompt pembanding
                 </Button>
               </section>
-              <Comparables project={project} analysis={a} update={setProject} notify={setToast} />
+              <section className="card v1-prompt-bridge">
+                <div>
+                  <h2>Referensi tanah untuk metode baru</h2>
+                  <p>
+                    CSV tanah murni memiliki format terpisah dari CSV rumah V1. Kelola referensi dan
+                    asumsi tanah pada Analisis harga.
+                  </p>
+                </div>
+                <Button variant="secondary" onClick={() => go('pricing')}>
+                  Kelola referensi tanah
+                </Button>
+              </section>
+              <Comparables
+                project={project}
+                analysis={market}
+                update={setProject}
+                notify={setToast}
+              />
             </>
           )}
           {page === 'pricing' && (
             <>
-              {project.comparables.length > 0 && a.suggested === null && (
+              <CostPanel
+                project={project}
+                update={setProject}
+                onPrompt={() => openPrompt('land')}
+                onProperty={() => go('property')}
+                notify={setToast}
+              />
+              {!isCost && project.comparables.length > 0 && a.suggested === null && (
                 <AnalysisReadiness
                   project={project}
                   analysis={a}
@@ -864,7 +936,8 @@ export default function App() {
             {[
               'Isi spesifikasi, kondisi, legalitas, dan lokasi rumah.',
               'Gunakan Generator prompt AI untuk meminta riset pembanding. Tempel CSV hasil AI di Data pembanding, tinjau sumbernya, lalu pastikan minimal 3 pembanding relevan.',
-              'Tinjau rentang harga, metode penyesuaian, dan kualitas buktinya.',
+              'Atau buka Analisis harga: isi harga tanah per m², biaya bangun baru, umur efektif, kondisi, tusuk sate dan banjir; simpan metode tanah + bangunan. Referensi tanah memakai CSV tersendiri.',
+              'Tinjau rentang harga, metode aktif, asumsi penyesuaian, dan kualitas buktinya.',
               'Catat performa setiap periode. Tinjau rekomendasi sebelum mengubah harga.',
               'Unduh PDF atau PowerPoint untuk diskusi dengan pemilik dan agen.',
             ].map((text, i) => (
@@ -890,7 +963,9 @@ export default function App() {
           <Notice>
             {a.issues.length
               ? a.issues.join(' ')
-              : `${a.count} pembanding menjadi dasar harga. Tinjau kembali sumber dan tanggalnya sebelum mengambil keputusan.`}
+              : isCost
+                ? 'Metode tanah + bangunan aktif. Tinjau harga tanah, penyusutan, faktor kondisi dan koreksi risiko pada Analisis harga.'
+                : `${a.count} pembanding menjadi dasar harga. Tinjau kembali sumber dan tanggalnya sebelum mengambil keputusan.`}
           </Notice>
           <p>
             {e.title}. {e.description}
@@ -1021,6 +1096,25 @@ function Stat({
   );
 }
 function PriceChart({ project, analysis }: { project: Project; analysis: Analysis }) {
+  if (analysis.cost)
+    return (
+      <div className="cost-preview">
+        <dl>
+          <div>
+            <dt>Tanah</dt>
+            <dd>{rupiah(analysis.cost.landValue)}</dd>
+          </div>
+          <div>
+            <dt>Bangunan setelah umur & kondisi</dt>
+            <dd>{rupiah(analysis.cost.buildingValue)}</dd>
+          </div>
+          <div>
+            <dt>Nilai dasar setelah posisi & banjir</dt>
+            <dd>{rupiah(analysis.cost.baseValue)}</dd>
+          </div>
+        </dl>
+      </div>
+    );
   const rows = analysis.rows.filter((r) => r.included).slice(0, 6);
   const prices = rows.map((r) => r.comparable.price);
   const own = project.property.asking;
@@ -1145,7 +1239,11 @@ function Pricing({
           </div>
           <div className="hero-price">
             {a.suggested ? compact(a.suggested) : 'Belum tersedia'}
-            <span>Persentil 35 dari pembanding setelah penyesuaian</span>
+            <span>
+              {a.method === 'cost'
+                ? 'Tanah + bangunan tersusut, setelah koreksi'
+                : 'Persentil 35 dari pembanding setelah penyesuaian'}
+            </span>
           </div>
           <p>
             Harga awal untuk menguji ketertarikan pasar. Tidak menjamin kunjungan atau penjualan.
@@ -1172,7 +1270,10 @@ function Pricing({
                       at: new Date().toISOString(),
                       from: s.property.asking,
                       to: a.suggested!,
-                      reason: 'Harga pembukaan berdasarkan pembanding',
+                      reason:
+                        a.method === 'cost'
+                          ? 'Harga pembukaan simulasi tanah + bangunan'
+                          : 'Harga pembukaan berdasarkan pembanding',
                     },
                   ],
                 }));
@@ -1188,118 +1289,134 @@ function Pricing({
           <span className="stat-icon">
             <BarChart3 size={20} />
           </span>
-          <p>Rentang indikasi pasar</p>
+          <p>
+            {a.method === 'cost' ? 'Rentang skenario tanah + bangunan' : 'Rentang indikasi pasar'}
+          </p>
           <h2>{a.low ? `${compact(a.low)} – ${compact(a.high!)}` : 'Belum tersedia'}</h2>
           <p>
-            Kuartil 25–75%. Rentang ini menunjukkan sebaran data, bukan interval keyakinan atau
-            batas pasti nilai rumah.
+            {a.method === 'cost'
+              ? 'Minimum–maksimum harga tanah referensi, dengan asumsi bangunan tetap. Bukan rentang transaksi atau interval keyakinan. Manual/satu referensi memberi satu nilai.'
+              : 'Kuartil 25–75%. Rentang ini menunjukkan sebaran data, bukan interval keyakinan atau batas pasti nilai rumah.'}
           </p>
           <div className="range-track light">
             <span />
             <i />
           </div>
-          <Tag tone="gray">{a.count} pembanding dasar harga</Tag>
+          <Tag tone="gray">
+            {a.count} {a.method === 'cost' ? 'referensi tanah' : 'pembanding dasar harga'}
+          </Tag>
         </section>
         <section className="card evidence-card">
           <ShieldCheck size={23} />
           <p>Kualitas bukti</p>
           <h2>{a.confidence}</h2>
           <p>
-            {a.transactionCount >= 3
-              ? 'Menggunakan transaksi yang ditandai terverifikasi oleh pengguna.'
-              : 'Menggunakan harga penawaran. Harga kesepakatan sebenarnya belum diketahui.'}
+            {a.method === 'cost'
+              ? 'Simulasi berdasarkan harga tanah dan biaya pengganti. Belum dikalibrasi dengan harga transaksi rumah setempat.'
+              : a.transactionCount >= 3
+                ? 'Menggunakan transaksi yang ditandai terverifikasi oleh pengguna.'
+                : 'Menggunakan harga penawaran. Harga kesepakatan sebenarnya belum diketahui.'}
           </p>
           <Tag tone="amber">Belum diverifikasi independen</Tag>
         </section>
       </div>
-      <section className="card">
-        <div className="card-heading">
-          <div>
-            <h2>Harga asli & hasil penyesuaian</h2>
-            <p>Penyesuaian luas dan kondisi dibuat eksplisit agar mudah ditinjau.</p>
+      {a.method === 'cost' ? (
+        <section className="card form-section cost-details">
+          <h2>Dasar perhitungan yang tersimpan</h2>
+          {costReportLines(project).map((line, i) => (
+            <p key={i}>{line}</p>
+          ))}
+        </section>
+      ) : (
+        <section className="card">
+          <div className="card-heading">
+            <div>
+              <h2>Harga asli & hasil penyesuaian</h2>
+              <p>Penyesuaian luas dan kondisi dibuat eksplisit agar mudah ditinjau.</p>
+            </div>
+            <Button variant="secondary" onClick={() => setMethod(!method)}>
+              <ClipboardList size={15} />
+              {method ? 'Tutup metode' : 'Lihat metode'}
+            </Button>
           </div>
-          <Button variant="secondary" onClick={() => setMethod(!method)}>
-            <ClipboardList size={15} />
-            {method ? 'Tutup metode' : 'Lihat metode'}
-          </Button>
-        </div>
-        {method && (
-          <div className="method-box">
-            <h3>Asumsi awal yang digunakan</h3>
-            <p>
-              Faktor luas = 65% × (LT subjek ÷ LT pembanding) + 35% × (LB subjek ÷ LB pembanding).
-              Faktor kondisi = 1 + 4% × selisih tingkat kondisi. Hasil gabungan dibatasi antara
-              0,8–1,2 lalu dikalikan harga pembanding.
-            </p>
-            <p>
-              Harga pembukaan menggunakan persentil 35, rentang menggunakan persentil 25–75;
-              dibulatkan ke Rp5 juta. Bobot belum dikalibrasi dengan transaksi setempat. Sertifikat
-              harus sama; pembanding berusia lebih dari 180 hari dan ukuran terlalu berbeda
-              dikeluarkan.
-            </p>
-            <p>
-              Transaksi dipakai jika ada minimal 3 yang ditandai terverifikasi pengguna. Jika tidak,
-              diperlukan minimal 3 harga penawaran. Keduanya tidak dicampur. Verifikasi pengguna
-              bukan penilaian independen.
-            </p>
-          </div>
-        )}
-        {a.rows.some((r) => r.included) ? (
-          <div className="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>PEMBANDING</th>
-                  <th>HARGA ASLI</th>
-                  <th>PENYESUAIAN</th>
-                  <th>SETARA SUBJEK</th>
-                  <th>DASAR ESTIMASI</th>
-                </tr>
-              </thead>
-              <tbody>
-                {a.rows
-                  .filter((r) => r.included)
-                  .map((r) => (
-                    <tr key={r.comparable.id}>
-                      <td>
-                        <strong>{r.comparable.title}</strong>
-                        <small>
-                          {r.comparable.land} m² tanah · {r.comparable.building} m² bangunan
-                        </small>
-                      </td>
-                      <td>{rupiah(r.comparable.price)}</td>
-                      <td>
-                        <Tag tone="gray">
-                          {r.adjustment >= 0 ? '+' : ''}
-                          {r.adjustment.toFixed(1)}%
-                        </Tag>
-                      </td>
-                      <td>
-                        <strong>{rupiah(r.adjusted)}</strong>
-                      </td>
-                      <td>
-                        {(
-                          a.transactionCount >= 3
-                            ? r.comparable.priceType === 'Transaksi'
-                            : r.comparable.priceType === 'Penawaran'
-                        ) ? (
-                          <Tag>Digunakan</Tag>
-                        ) : (
-                          <Tag tone="gray">Kelompok terpisah</Tag>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <Empty
-            title="Belum ada pembanding"
-            text="Tambahkan data di halaman Data pembanding untuk memulai."
-          />
-        )}
-      </section>
+          {method && (
+            <div className="method-box">
+              <h3>Asumsi awal yang digunakan</h3>
+              <p>
+                Faktor luas = 65% × (LT subjek ÷ LT pembanding) + 35% × (LB subjek ÷ LB pembanding).
+                Faktor kondisi = 1 + 4% × selisih tingkat kondisi. Hasil gabungan dibatasi antara
+                0,8–1,2 lalu dikalikan harga pembanding.
+              </p>
+              <p>
+                Harga pembukaan menggunakan persentil 35, rentang menggunakan persentil 25–75;
+                dibulatkan ke Rp5 juta. Bobot belum dikalibrasi dengan transaksi setempat.
+                Sertifikat harus sama; pembanding berusia lebih dari 180 hari dan ukuran terlalu
+                berbeda dikeluarkan.
+              </p>
+              <p>
+                Transaksi dipakai jika ada minimal 3 yang ditandai terverifikasi pengguna. Jika
+                tidak, diperlukan minimal 3 harga penawaran. Keduanya tidak dicampur. Verifikasi
+                pengguna bukan penilaian independen.
+              </p>
+            </div>
+          )}
+          {a.rows.some((r) => r.included) ? (
+            <div className="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>PEMBANDING</th>
+                    <th>HARGA ASLI</th>
+                    <th>PENYESUAIAN</th>
+                    <th>SETARA SUBJEK</th>
+                    <th>DASAR ESTIMASI</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {a.rows
+                    .filter((r) => r.included)
+                    .map((r) => (
+                      <tr key={r.comparable.id}>
+                        <td>
+                          <strong>{r.comparable.title}</strong>
+                          <small>
+                            {r.comparable.land} m² tanah · {r.comparable.building} m² bangunan
+                          </small>
+                        </td>
+                        <td>{rupiah(r.comparable.price)}</td>
+                        <td>
+                          <Tag tone="gray">
+                            {r.adjustment >= 0 ? '+' : ''}
+                            {r.adjustment.toFixed(1)}%
+                          </Tag>
+                        </td>
+                        <td>
+                          <strong>{rupiah(r.adjusted)}</strong>
+                        </td>
+                        <td>
+                          {(
+                            a.transactionCount >= 3
+                              ? r.comparable.priceType === 'Transaksi'
+                              : r.comparable.priceType === 'Penawaran'
+                          ) ? (
+                            <Tag>Digunakan</Tag>
+                          ) : (
+                            <Tag tone="gray">Kelompok terpisah</Tag>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <Empty
+              title="Belum ada pembanding"
+              text="Tambahkan data di halaman Data pembanding untuk memulai."
+            />
+          )}
+        </section>
+      )}
       <section className="card insights-card">
         <div className="card-heading">
           <h2>Potensi & hal yang perlu diperiksa</h2>
@@ -1307,9 +1424,9 @@ function Pricing({
         <InsightColumns property={project.property} />
       </section>
       <Notice>
-        Penyesuaian belum memasukkan premi legalitas, risiko banjir, renovasi terperinci, atau nilai
-        fasilitas secara otomatis. Periksa kemiripan lingkungan secara manual. Hasil ini bukan
-        penilaian resmi KJPP.
+        {a.method === 'cost'
+          ? 'Koreksi legalitas, akses, dan keusangan fungsi belum dihitung otomatis. Jangan menerapkan banjir/tusuk sate dua kali bila harga tanah acuan sudah mencerminkan risiko yang sama. Tinjau harga dengan bukti pasar dan respons calon pembeli.'
+          : 'Penyesuaian belum memasukkan premi legalitas, risiko banjir, renovasi terperinci, atau nilai fasilitas secara otomatis. Periksa kemiripan lingkungan secara manual. Hasil ini bukan penilaian resmi KJPP.'}
       </Notice>
     </>
   );

@@ -1,5 +1,6 @@
 import { formatRooms, validRoomCounts } from './rooms';
 import { areaKey, clusterKey } from './location';
+import { costAnalysis, type CostSettings, type LandReference, type costValuation } from './cost';
 export type Condition =
   'Siap huni' | 'Perlu renovasi ringan' | 'Perlu renovasi besar' | 'Belum diketahui';
 export interface Property {
@@ -88,6 +89,9 @@ export interface Settings {
   visitTarget: number;
 }
 export interface Project {
+  valuationMethod?: 'market' | 'cost';
+  cost?: CostSettings;
+  landReferences?: LandReference[];
   version: 1;
   demo: boolean;
   property: Property;
@@ -227,6 +231,8 @@ export interface Matched {
   distance: number | null;
 }
 export interface Analysis {
+  method?: 'market' | 'cost';
+  cost?: ReturnType<typeof costValuation>;
   rows: Matched[];
   count: number;
   low: number | null;
@@ -244,6 +250,9 @@ function quantile(values: number[], q: number) {
   return a[i] + (a[Math.ceil(p)] - a[i]) * (p - i);
 }
 export function analyze(project: Project): Analysis {
+  return project.valuationMethod === 'cost' ? costAnalysis(project) : analyzeMarket(project);
+}
+export function analyzeMarket(project: Project): Analysis {
   const p = project.property;
   const issues = validateProperty(p);
   if (p.kind && p.kind !== 'Rumah tapak')

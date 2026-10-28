@@ -72,7 +72,7 @@ export function PromptPanel({
   setProject: React.Dispatch<React.SetStateAction<Project>>;
   initialGoal?: PromptGoal;
   onEditProperty: () => void;
-  onComparables: () => void;
+  onComparables: (goal?: PromptGoal) => void;
   notify: (message: string) => void;
 }) {
   const [options, setOptions] = useState<PromptOptions>(() => ({
@@ -140,21 +140,26 @@ export function PromptPanel({
   return (
     <div className="prompt-app prompt-integration">
       <Notice>
-        {options.goal === 'research'
-          ? 'Gunakan prompt ini di ChatGPT/Claude dengan pencarian web. Salin hasil CSV tanpa pagar kode, lalu tempel melalui Data pembanding → Tempel CSV dari AI. Data impor tetap perlu ditinjau; bukan otomatis terverifikasi.'
-          : options.goal === 'pricing'
-            ? 'Prompt meminta rekomendasi harga yang kompetitif untuk acuan 180 hari, bukan jaminan terjual. Hasil AI tidak otomatis mengganti harga iklan atau estimasi lokal.'
-            : 'Generator prompt adalah pendamping analisis V1. Salin prompt ke percakapan AI Anda; hasilnya tidak otomatis masuk ke aplikasi.'}
+        {options.goal === 'land'
+          ? 'Cari kavling nyata → salin CSV tanah → Analisis harga → Tempel CSV tanah. Format ini terpisah dari CSV rumah V1.'
+          : options.goal === 'research'
+            ? 'Gunakan prompt ini di ChatGPT/Claude dengan pencarian web. Salin hasil CSV tanpa pagar kode, lalu tempel melalui Data pembanding → Tempel CSV dari AI. Data impor tetap perlu ditinjau; bukan otomatis terverifikasi.'
+            : options.goal === 'pricing'
+              ? 'Prompt meminta rekomendasi harga yang kompetitif untuk acuan 180 hari, bukan jaminan terjual. Hasil AI tidak otomatis mengganti harga iklan atau estimasi lokal.'
+              : 'Generator prompt adalah pendamping analisis V1. Salin prompt ke percakapan AI Anda; hasilnya tidak otomatis masuk ke aplikasi.'}
       </Notice>
       <div className="button-row prompt-bridge-actions">
         <Button variant="secondary" onClick={() => change('goal', 'research')}>
           Prompt riset pembanding
         </Button>
+        <Button variant="secondary" onClick={() => change('goal', 'land')}>
+          Prompt riset tanah
+        </Button>
         <Button variant="secondary" onClick={() => change('goal', 'pricing')}>
           Prompt harga 180 hari
         </Button>
-        <Button variant="ghost" onClick={onComparables}>
-          Buka data pembanding
+        <Button variant="ghost" onClick={() => onComparables(options.goal)}>
+          {options.goal === 'land' ? 'Buka referensi tanah' : 'Buka data pembanding'}
           <ArrowRight size={15} />
         </Button>
       </div>
