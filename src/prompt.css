@@ -1696,3 +1696,225 @@
   overflow-y: auto;
   scrollbar-width: thin;
 }
+
+.analysis-readiness {
+  padding: 21px 23px;
+  margin-bottom: 21px;
+  border-color: #dfe7d5;
+  background: linear-gradient(115deg, #fff, #fafcf5);
+}
+.readiness-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.readiness-icon {
+  width: 35px;
+  height: 35px;
+  border: 1px solid #e2ead7;
+  background: #f2f7e9;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: #8da673;
+  flex-shrink: 0;
+}
+.readiness-heading > div {
+  flex: 1;
+  min-width: 0;
+}
+.readiness-heading h2 {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #4f6b43;
+}
+.readiness-heading p {
+  font-size: 11px;
+  line-height: 1.9;
+  color: #8d9e7d;
+  margin-top: 5px;
+}
+.readiness-heading > .button {
+  font-size: 10px;
+  margin-left: auto;
+}
+.readiness-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  padding: 15px 0;
+  margin-top: 15px;
+  border-block: 1px solid #e9efdf;
+  color: #8a9e78;
+  font-size: 10px;
+}
+.readiness-counts > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.readiness-counts strong {
+  font-size: 15px;
+  color: #5e7d4a;
+}
+.readiness-scope {
+  font-size: 11px;
+  color: #92a082;
+  line-height: 1.9;
+  margin-top: 13px;
+}
+.readiness-scope strong {
+  font-weight: 500;
+  color: #708c5b;
+}
+.readiness-property {
+  background: #f7f3e8;
+  border: 1px solid #eee5cc;
+  border-radius: 6px;
+  padding: 13px 15px;
+  margin-top: 15px;
+  color: #9c8a5e;
+  font-size: 11px;
+  line-height: 1.9;
+}
+.readiness-property > strong {
+  font-weight: 500;
+  color: #8f7f53;
+}
+.readiness-property ul {
+  padding-left: 17px;
+  margin: 5px 0 0;
+}
+.readiness-reasons {
+  margin-top: 17px;
+}
+.readiness-reasons > h3 {
+  font-size: 12px;
+  color: #718b5d;
+  margin-bottom: 10px;
+}
+.readiness-reasons > details {
+  border: 1px solid #e7eddc;
+  border-radius: 6px;
+  background: #fff;
+  margin-top: 9px;
+  overflow: hidden;
+}
+.readiness-reasons summary {
+  cursor: pointer;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  list-style: none;
+}
+.readiness-reasons summary::-webkit-details-marker {
+  display: none;
+}
+.readiness-reasons summary strong {
+  font-size: 11px;
+  font-weight: 500;
+  color: #738b62;
+}
+.readiness-reasons summary > span:last-child {
+  font-size: 9px;
+  color: #a2af90;
+  margin-left: auto;
+}
+.readiness-reasons details > div {
+  padding: 0 15px 15px;
+}
+.readiness-reasons p {
+  font-size: 11px;
+  color: #8f9f7e;
+  line-height: 1.9;
+}
+.readiness-reasons ul {
+  padding: 10px 13px 10px 27px;
+  margin: 12px 0 0;
+  border-radius: 4px;
+  background: #f5f8ef;
+  font-size: 10px;
+  color: #7e946b;
+  line-height: 1.9;
+}
+.readiness-footnote {
+  font-size: 10px;
+  line-height: 1.9;
+  color: #a0ad8e;
+  margin-top: 15px;
+}
+.readiness-footnote strong {
+  font-weight: 500;
+  color: #7d9568;
+}
+@media (max-width: 760px) {
+  .analysis-readiness {
+    padding: 20px 18px;
+  }
+  .readiness-heading {
+    flex-wrap: wrap;
+  }
+  .readiness-heading > .button {
+    margin-left: 47px;
+  }
+  .readiness-heading h2 {
+    font-size: 15px;
+  }
+  .readiness-heading p {
+    font-size: 10px;
+  }
+  .readiness-counts {
+    gap: 10px 17px;
+  }
+  .readiness-scope {
+    font-size: 10px;
+  }
+  .readiness-reasons summary {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .readiness-reasons summary > span:last-child {
+    display: none;
+  }
+  .readiness-reasons p {
+    font-size: 10px;
+  }
+  .readiness-reasons ul {
+    font-size: 9px;
+  }
+  .readiness-footnote {
+    font-size: 9px;
+  }
+}
+@media (max-width: 480px) {
+  .readiness-heading h2 {
+    font-size: 14px;
+  }
+  .readiness-icon {
+    width: 29px;
+    height: 29px;
+  }
+  .readiness-heading {
+    gap: 9px;
+  }
+  .readiness-heading > .button {
+    margin-left: 38px;
+    font-size: 9px;
+  }
+  .readiness-counts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .readiness-counts > span {
+    font-size: 9px;
+    line-height: 1.8;
+  }
+  .readiness-counts strong {
+    font-size: 14px;
+  }
+  .readiness-reasons summary strong {
+    font-size: 10px;
+  }
+}

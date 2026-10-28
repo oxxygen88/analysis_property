@@ -57,6 +57,7 @@ import { exportPdf, exportSlides } from './reports';
 import { PropertyForm, Comparables, CampaignModal } from './inputs';
 import { Button, Tag, Empty, Notice, Modal, saveBlob } from './ui';
 import { PromptPanel } from './PromptPanel';
+import { AnalysisReadiness } from './AnalysisReadiness';
 import { formatRooms } from './rooms';
 import type { PromptGoal } from './prompts';
 
@@ -380,7 +381,14 @@ export default function App() {
                   {storageError ? 'Belum tersimpan' : 'Tersimpan di perangkat'}
                 </span>
               </div>
-              {a.count < 3 && (
+              {project.comparables.length > 0 && a.suggested === null && (
+                <AnalysisReadiness
+                  project={project}
+                  analysis={a}
+                  onReview={() => go('comparables')}
+                />
+              )}
+              {project.comparables.length === 0 && (
                 <section className="card v1-prompt-bridge">
                   <div>
                     <h2>Harga belum tersedia? Mulai dari data pembanding.</h2>
@@ -650,6 +658,13 @@ export default function App() {
           )}
           {page === 'pricing' && (
             <>
+              {project.comparables.length > 0 && a.suggested === null && (
+                <AnalysisReadiness
+                  project={project}
+                  analysis={a}
+                  onReview={() => go('comparables')}
+                />
+              )}
               <section className="card v1-prompt-bridge">
                 <div>
                   <h2>Butuh sudut pandang harga untuk acuan 180 hari?</h2>

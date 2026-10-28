@@ -1,4 +1,5 @@
 import { formatRooms, validRoomCounts } from './rooms';
+import { areaKey, clusterKey } from './location';
 export type Condition =
   'Siap huni' | 'Perlu renovasi ringan' | 'Perlu renovasi besar' | 'Belum diketahui';
 export interface Property {
@@ -275,11 +276,11 @@ export function analyze(project: Project): Analysis {
     else if (c.condition === 'Belum diketahui' || c.certificate === 'Lainnya / belum diketahui')
       reason = 'Kondisi / sertifikat perlu diverifikasi';
     else if (c.certificate !== p.certificate) reason = 'Sertifikat berbeda';
-    else if (project.settings.mode === 'area' && norm(c.area) !== norm(p.area))
+    else if (project.settings.mode === 'area' && areaKey(c.area) !== areaKey(p.area))
       reason = 'Di luar area';
     else if (
       project.settings.mode === 'cluster' &&
-      (!p.cluster.trim() || norm(c.cluster) !== norm(p.cluster))
+      (!p.cluster.trim() || clusterKey(c.cluster) !== clusterKey(p.cluster))
     )
       reason = 'Cluster berbeda';
     else if (project.settings.mode === 'radius' && (d === null || d > project.settings.radius))

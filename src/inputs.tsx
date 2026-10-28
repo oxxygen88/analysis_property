@@ -32,6 +32,7 @@ import {
 import { Button, Field, Tag, Empty, Notice, Modal, RoomInput, saveBlob } from './ui';
 import { COMPARABLE_CSV_COLUMNS, parseComparableCsv } from './comparable-csv';
 import { formatRooms } from './rooms';
+import { AnalysisReadiness } from './AnalysisReadiness';
 import { validatePromptProperty } from './prompts';
 export function PropertyForm({
   property,
@@ -445,6 +446,7 @@ export function Comparables({
           </Notice>
         )}
       </section>
+      <AnalysisReadiness project={project} analysis={analysis} />
       <section className="card comparables-card">
         <div className="card-heading">
           <div>

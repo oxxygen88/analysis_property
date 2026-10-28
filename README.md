@@ -18,6 +18,18 @@ Semua prompt memakai format **Role, Task, Context, Reasoning, Stop Condition, Ou
 
 Jika AI tidak bisa mencari web atau bukti tidak lengkap, prompt melarang AI membuat data fiktif. Data dengan kondisi/sertifikat belum diketahui dapat disimpan, tetapi tidak digunakan untuk estimasi lokal sampai diperiksa. Baris tanpa luas, harga, sumber, alamat/area, atau tanggal yang wajib diminta ditempatkan AI di daftar perlu-verifikasi, bukan dipaksakan menjadi CSV.
 
+### CSV sudah diimpor, tetapi harga belum muncul
+
+Jumlah **tersimpan** dan jumlah **pembanding relevan** berbeda. Enam data yang tersimpan dengan nol data relevan berarti impor berhasil, tetapi data belum memenuhi aturan estimasi. Jangan mengimpor ulang untuk memperbaiki keadaan ini.
+
+Panel **Kesiapan analisis pembanding** pada Ringkasan, Data pembanding, dan Analisis harga memperlihatkan jumlah tersimpan/lolos filter/dasar harga, alasan pengecualian, nilai area atau cluster yang dibandingkan, serta langkah peninjauan. Data tetap terlihat pada tabel meskipun tidak digunakan untuk harga.
+
+- Mode area membandingkan nama area/kecamatan. `Kec. Gunung Putri`, `Kecamatan Gunung Putri`, dan `Gunung Putri` kini dianggap variasi label yang sama. `Gunung Putri`, `Cileungsi`, dan nama kawasan `Kota Wisata` tidak otomatis disamakan.
+- Mode cluster mengabaikan awalan `Cluster` / `Klaster`, tetapi tetap membedakan nama cluster yang berbeda dan nama kawasan besar.
+- Mode radius memerlukan koordinat yang benar pada kedua properti dan jarak dalam radius terpilih.
+- Perbaiki nama/field berdasarkan sumber hanya jika memang wilayah yang sama, atau pilih lingkup yang sesuai. Aplikasi tidak memperluas wilayah secara diam-diam atau mencentang verifikasi agar harga muncul.
+- Jika data lolos filter tetapi harga belum muncul, panel juga memeriksa detail properti yang belum lengkap serta kecukupan kelompok penawaran/transaksi. Dua transaksi dan satu penawaran tidak digabung menjadi tiga bukti harga yang sebanding.
+
 ### 2. Rekomendasi harga jual dengan acuan 180 hari
 
 Buka **Analisis harga → Generate prompt harga 180 hari**. Prompt menyertakan spesifikasi, pembanding pilihan, dan performa pemasaran jika tersedia. AI diminta memberikan rentang indikasi, harga pembukaan yang kompetitif, ruang negosiasi, skenario percepatan, serta jadwal evaluasi hingga hari 180.
