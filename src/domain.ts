@@ -1,5 +1,8 @@
 export type Condition = 'Siap huni' | 'Perlu renovasi ringan' | 'Perlu renovasi besar';
 export interface Property {
+  kind?: 'Rumah tapak' | 'Ruko' | 'Tanah kavling' | 'Apartemen';
+  city?: string;
+  province?: string;
   title: string;
   address: string;
   area: string;

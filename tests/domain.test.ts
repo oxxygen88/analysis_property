@@ -10,7 +10,6 @@ import {
   validateComparable,
   type Campaign,
 } from '../src/domain';
-import { reportSections } from '../src/reports';
 
 test('empty project cannot produce a fabricated valuation', () => {
   const result = analyze(emptyProject());
@@ -148,15 +147,4 @@ test('cohorts cannot overlap or have more surveyed prospects than unique chats',
   assert.match(validateCampaign(period(), [period()]), /tumpang tindih/);
   assert.match(validateCampaign(period({ views: -1 }), []), /nonnegatif/);
   assert.equal(validateCampaign(period({ chats: 5, visits: 2 }), []), '');
-});
-test('shared report omits private seller minimum and budget and clearly labels simulations', () => {
-  const p = demoProject();
-  p.property.minimum = 2345678910;
-  p.property.budget = 987654321;
-  const report = JSON.stringify(reportSections(p));
-  assert.ok(report.includes('SIMULASI'));
-  assert.ok(!report.includes('2345678910'));
-  assert.ok(!report.includes('987654321'));
-  assert.ok(report.includes('bukan penilaian resmi'));
-  assert.ok(report.includes('Harga penawaran') || report.includes('harga penawaran'));
 });

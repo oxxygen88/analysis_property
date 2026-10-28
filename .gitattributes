@@ -1,2 +1,2 @@
 # Generated single-file application: avoid megabyte diffs and preserve bundled string whitespace.
-index.html linguist-generated=true -diff
+/index.html linguist-generated=true -diff

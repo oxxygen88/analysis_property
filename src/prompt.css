@@ -1,0 +1,1585 @@
+.prompt-app .page-heading h1 {
+  font-size: 30px;
+  letter-spacing: -1.1px;
+}
+.prompt-app .page-heading p {
+  font-size: 12px;
+  max-width: 620px;
+}
+.prompt-app .sidebar .nav-item {
+  font-size: 12px;
+}
+.prompt-app .sidebar-tip p {
+  font-size: 11px;
+}
+.prompt-app .sidebar-tip h4 {
+  font-size: 12px;
+}
+.prompt-app .sidebar-tip button {
+  font-size: 11px;
+}
+.prompt-app .workspace-switch .tag {
+  margin-left: auto;
+  font-size: 8px;
+}
+.prompt-app .button {
+  font-size: 11px;
+  min-height: 39px;
+}
+.prompt-app .card-heading p {
+  font-size: 11px;
+}
+.prompt-app .field label {
+  font-size: 11px;
+  color: #667c6b;
+}
+.prompt-app .field input,
+.prompt-app .field textarea,
+.prompt-app .field select {
+  font-size: 12px;
+}
+.prompt-app .notice {
+  font-size: 11px;
+  color: #6e865e;
+}
+.prompt-app .nav-count {
+  font-size: 10px;
+}
+.prompt-app .main-footer {
+  font-size: 9px;
+}
+.prompt-page-heading {
+  margin-bottom: 25px;
+}
+.prompt-workflow {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  border: 1px solid #e5eadc;
+  border-radius: 9px;
+  background: #f0f4e9;
+  color: #86977b;
+  font-size: 11px;
+}
+.prompt-workflow > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.prompt-workflow > span > i {
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  border: 1px solid #d8e2cd;
+  display: grid;
+  place-items: center;
+  font-size: 9px;
+  font-style: normal;
+  background: #f9fbf4;
+}
+.prompt-workflow > span.current {
+  color: #386348;
+  font-weight: 600;
+}
+.prompt-workflow > span.current > i {
+  background: #2d6146;
+  color: white;
+  border-color: #2d6146;
+}
+.prompt-workflow > svg {
+  color: #b8c5aa;
+}
+.prompt-workflow > .tag {
+  margin-left: auto;
+  font-size: 9px;
+}
+.prompt-layout {
+  display: grid;
+  grid-template-columns: 350px minmax(0, 1fr);
+  gap: 23px;
+  align-items: start;
+}
+.prompt-controls,
+.prompt-preview-column {
+  min-width: 0;
+}
+.prompt-config .card-heading {
+  padding: 22px 21px 20px;
+  border-bottom: 1px solid #eff1e9;
+  align-items: flex-start;
+}
+.prompt-config h2 {
+  font-size: 16px;
+}
+.prompt-config .card-heading p {
+  font-size: 10px;
+  line-height: 1.9;
+  max-width: 230px;
+}
+.config-step {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #bbc6ad;
+  margin-top: 4px;
+}
+.prompt-config-body {
+  padding: 21px;
+}
+.control-label {
+  font-size: 11px;
+  color: #6d806a;
+  font-weight: 500;
+  margin-bottom: 9px;
+}
+.platform-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 23px;
+}
+.platform-picker > button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fbfcf9;
+  border: 1px solid #e4e9de;
+  border-radius: 7px;
+  padding: 12px 10px;
+  color: #8a9981;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 500;
+}
+.platform-picker > button.chosen {
+  border-color: #7ea16e;
+  background: #f0f5e9;
+  color: #3f6745;
+  box-shadow: 0 0 0 1px #7ea16e10;
+}
+.platform-picker > button > svg {
+  margin-left: auto;
+  color: #7a9a62;
+  width: 14px;
+}
+.platform-symbol {
+  display: flex;
+  align-items: center;
+}
+.platform-symbol.chatgpt {
+  color: #56876a;
+}
+.platform-symbol.claude {
+  color: #c78d70;
+  font-size: 24px;
+  line-height: 19px;
+}
+.goal-description {
+  font-size: 10px;
+  color: #9aaa8d;
+  line-height: 1.9;
+  margin: 8px 0 0;
+}
+.prompt-subheading {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: #7e9371;
+  padding-top: 22px;
+  margin-top: 21px;
+  border-top: 1px solid #edf0e5;
+  margin-bottom: 15px;
+}
+.prompt-scope-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.prompt-config-body > .field {
+  margin-top: 15px;
+}
+.prompt-config-body .field select {
+  background-color: #fff;
+  padding-right: 7px;
+  font-size: 11px;
+}
+.prompt-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 17px;
+  color: #778d6b;
+}
+.prompt-check > input {
+  margin-top: 3px;
+  width: 14px;
+  height: 14px;
+}
+.prompt-check > span {
+  flex: 1;
+  min-width: 0;
+}
+.prompt-check strong {
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b8260;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.prompt-check small {
+  font-size: 9px;
+  display: block;
+  line-height: 1.8;
+  color: #9aaa8e;
+  margin-top: 4px;
+}
+.prompt-check .tag {
+  font-size: 8px;
+  padding: 2px 5px;
+}
+.privacy-options {
+  margin: 22px 0;
+  border: 1px solid #e9eee0;
+  border-radius: 7px;
+  background: #fafcf6;
+  padding: 13px 12px;
+}
+.privacy-options summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  color: #869b74;
+  cursor: pointer;
+  list-style: none;
+}
+.privacy-options summary::-webkit-details-marker {
+  display: none;
+}
+.privacy-options summary > svg:last-child {
+  margin-left: auto;
+  transition: transform 0.2s;
+}
+.privacy-options[open] summary > svg:last-child {
+  transform: rotate(90deg);
+}
+.privacy-options .prompt-check strong {
+  font-size: 10px;
+}
+.privacy-options .prompt-check small {
+  font-size: 9px;
+}
+.privacy-footnote {
+  font-size: 9px;
+  line-height: 1.9;
+  color: #a0af92;
+  display: block;
+  margin-top: 14px;
+}
+.prompt-config textarea {
+  min-height: 92px;
+  line-height: 1.8;
+  font-size: 11px !important;
+}
+.prompt-app .generate-button {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  padding: 13px 15px;
+  min-height: 45px;
+  font-size: 12px;
+  gap: 9px;
+  margin-top: 23px;
+  background: #245a43;
+  border-color: #245a43;
+}
+.generate-button > svg:last-child {
+  margin-left: auto;
+}
+.generate-button > svg:first-child {
+  margin-right: auto;
+}
+.local-generation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 8px;
+  color: #9dab90;
+  line-height: 1.8;
+  margin-top: 11px;
+}
+.prompt-property-summary {
+  margin-top: 18px;
+  padding: 20px 17px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.summary-icon {
+  width: 34px;
+  height: 34px;
+  background: #f1f5e8;
+  border: 1px solid #e7edda;
+  border-radius: 8px;
+  color: #94aa7b;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.prompt-property-summary > div:last-child {
+  min-width: 0;
+}
+.prompt-property-summary small {
+  font-size: 7px;
+  color: #a1b08d;
+  letter-spacing: 1.1px;
+}
+.prompt-property-summary h3 {
+  font-size: 13px;
+  color: #56714b;
+  line-height: 1.6;
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+.prompt-property-summary p {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: 9px;
+  color: #97a688;
+  line-height: 1.8;
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+.prompt-property-summary p > svg {
+  margin-top: 2px;
+}
+.property-summary-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 11px 0 13px;
+  font-size: 8px;
+  color: #8da177;
+}
+.property-summary-stats > span {
+  padding: 3px 5px;
+  background: #f5f8ef;
+  border-radius: 3px;
+}
+.prompt-property-summary .text-link {
+  font-size: 10px;
+  color: #71905e;
+  gap: 7px;
+}
+.prompt-preview-column {
+  scroll-margin-top: 20px;
+}
+.prompt-preview {
+  overflow: hidden;
+  border-color: #dfe6d7;
+  box-shadow: 0 4px 20px #334e2e03;
+}
+.prompt-preview-heading {
+  padding: 25px 26px 22px;
+  background: linear-gradient(120deg, #fff, #f7faf2);
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: center;
+}
+.preview-eyebrow {
+  font-size: 8px;
+  letter-spacing: 1.2px;
+  color: #91a27c;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.prompt-preview-heading h2 {
+  font-size: 20px;
+  color: #3c5a3e;
+  margin-top: 10px;
+  letter-spacing: -0.6px;
+}
+.prompt-preview-heading p {
+  font-size: 10px;
+  line-height: 1.8;
+  color: #98a68a;
+  margin-top: 7px;
+}
+.prompt-badge {
+  display: grid;
+  place-items: center;
+  background: #f0f5e7;
+  border: 1px solid #e4ecd7;
+  color: #a3b98a;
+  border-radius: 10px;
+  width: 43px;
+  height: 48px;
+}
+.prompt-preview-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  border-block: 1px solid #eaf0e0;
+  background: #fdfefb;
+  padding: 12px 23px;
+}
+.preview-tabs {
+  display: flex;
+  gap: 3px;
+  background: #f1f5e9;
+  border: 1px solid #e7eddd;
+  padding: 3px;
+  border-radius: 6px;
+}
+.preview-tabs > button {
+  font-size: 10px;
+  padding: 7px 11px;
+  color: #9aac8b;
+  border-radius: 4px;
+}
+.preview-tabs > button[aria-selected='true'] {
+  background: white;
+  color: #658150;
+  box-shadow: 0 1px 4px #36552f0b;
+}
+.prompt-preview-toolbar > span {
+  font-size: 8px;
+  color: #a2b08e;
+}
+.prompt-document {
+  height: 720px;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d3dec4 #f7f9f2;
+  overscroll-behavior: contain;
+  background: #fff;
+}
+.prompt-section {
+  padding: 24px 25px;
+  border-bottom: 1px solid #eef2e7;
+}
+.prompt-section:last-child {
+  border-bottom: 0;
+}
+.prompt-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.prompt-section-title > span {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  font-size: 8px;
+  font-weight: 600;
+  color: #87a06e;
+  background: #f2f7e9;
+  border: 1px solid #e5edda;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+.prompt-section-title h3 {
+  font-size: 14px;
+  color: #54723f;
+  font-weight: 650;
+  letter-spacing: -0.1px;
+}
+.prompt-section-title small {
+  font-size: 8px;
+  color: #a6b198;
+  margin-left: auto;
+}
+.prompt-section-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.95;
+  color: #72816c;
+  margin-top: 13px;
+}
+.context-code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 10px;
+  color: #7b906c;
+  background: #f8fbf3;
+  border: 1px solid #edf2e3;
+  border-radius: 6px;
+  padding: 16px;
+  line-height: 1.9;
+}
+.full-prompt {
+  border: 0;
+  border-radius: 0;
+  height: 100%;
+  resize: none;
+  padding: 24px 25px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #fbfcf8;
+  color: #718267;
+}
+.prompt-export-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 17px 22px;
+  border-top: 1px solid #e8eedf;
+  background: #fafcf6;
+}
+.prompt-export-bar > div {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: #91a77c;
+  font-size: 9px;
+  margin-right: auto;
+}
+.prompt-export-bar .button {
+  font-size: 10px;
+  min-height: 35px;
+  padding: 9px 12px;
+}
+.prompt-warnings {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  background: #f7f4e9;
+  border: 1px solid #eee6ce;
+  border-radius: 8px;
+  padding: 14px 17px;
+  margin-top: 16px;
+  color: #a4986f;
+}
+.prompt-warnings > svg {
+  margin-top: 2px;
+}
+.prompt-warnings strong {
+  font-size: 10px;
+  font-weight: 500;
+  color: #948251;
+}
+.prompt-warnings ul {
+  padding-left: 15px;
+  margin: 5px 0 0;
+}
+.prompt-warnings li {
+  font-size: 10px;
+  line-height: 1.9;
+  color: #aa9d79;
+}
+.handoff-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 21px 20px;
+  border: 1px solid #e0e9d5;
+  border-radius: 9px;
+  background: #edf3e5;
+  margin-top: 18px;
+}
+.handoff-icon {
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  border: 1px solid #dce8cc;
+  background: #f4f9ed;
+  border-radius: 9px;
+  color: #94ad79;
+  flex-shrink: 0;
+}
+.handoff-card > div {
+  min-width: 0;
+}
+.handoff-card h3 {
+  font-size: 13px;
+  color: #637f4d;
+}
+.handoff-card p {
+  font-size: 9px;
+  line-height: 1.9;
+  color: #8fa17b;
+  margin-top: 6px;
+}
+.handoff-card a {
+  font-size: 9px !important;
+  min-height: 34px !important;
+  padding: 9px 11px;
+  margin-left: auto;
+  text-decoration: none;
+  white-space: nowrap;
+  background: #f9fcf5 !important;
+  color: #769360 !important;
+  border-color: #dce7ce !important;
+}
+.handoff-note {
+  font-size: 9px;
+  line-height: 1.9;
+  color: #a1ad90;
+  margin: 10px 3px 0;
+}
+.optional-comparables {
+  margin-top: 22px;
+}
+.campaign-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  padding: 25px;
+}
+.campaign-intro h2 {
+  font-size: 21px;
+  color: #527343;
+}
+.campaign-intro p {
+  font-size: 12px;
+  line-height: 1.9;
+  color: #8f9f7f;
+  max-width: 620px;
+  margin-top: 9px;
+}
+.campaign-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin: 22px 0;
+}
+.campaign-metrics > div {
+  padding: 22px;
+}
+.campaign-metrics span {
+  display: block;
+  font-size: 11px;
+  color: #9aaa8b;
+}
+.campaign-metrics strong {
+  font-family: 'Manrope', sans-serif;
+  font-size: 30px;
+  letter-spacing: -1px;
+  color: #61804b;
+  margin-top: 10px;
+  display: block;
+}
+.campaign-settings {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  margin-top: 22px;
+  padding: 22px;
+}
+.campaign-settings > .field {
+  min-width: 180px;
+}
+.campaign-settings p {
+  font-size: 11px;
+  line-height: 1.9;
+  color: #93a77f;
+}
+.guide-hero {
+  padding: 30px;
+  margin-bottom: 23px;
+  background: linear-gradient(120deg, #fff, #f3f8eb);
+}
+.guide-hero h2 {
+  font-size: 25px;
+  color: #577749;
+  margin-top: 18px;
+}
+.guide-hero p {
+  font-size: 12px;
+  line-height: 1.9;
+  color: #91a37d;
+  max-width: 700px;
+  margin-top: 12px;
+}
+.guide-hero .button {
+  margin-top: 23px;
+}
+.guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 25px;
+}
+.guide-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px;
+}
+.guide-step > span {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  background: #f2f7e9;
+  border: 1px solid #e1ebd4;
+  border-radius: 8px;
+  flex-shrink: 0;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #90a776;
+}
+.guide-step h3 {
+  font-size: 15px;
+  color: #6b8756;
+  line-height: 1.6;
+}
+.guide-step p {
+  font-size: 12px;
+  color: #93a481;
+  line-height: 1.9;
+  margin-top: 7px;
+  max-width: 850px;
+}
+.prompt-structure {
+  margin-bottom: 24px;
+}
+.prompt-structure > div:last-child {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  padding: 0 22px 24px;
+}
+.prompt-structure > div:last-child > div {
+  border: 1px solid #e6eddc;
+  border-radius: 7px;
+  padding: 17px;
+  background: #fbfdf7;
+}
+.prompt-structure span {
+  font-size: 9px;
+  color: #a7b593;
+  display: block;
+  margin-bottom: 8px;
+}
+.prompt-structure strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: #718c59;
+}
+.prompt-structure p {
+  font-size: 10px;
+  line-height: 1.9;
+  color: #9aaa8d;
+  margin-top: 7px;
+}
+.manual-copy {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.8;
+  min-height: 350px;
+  background: #fbfcf8;
+  color: #6c7e60;
+}
+@media (min-width: 1500px) {
+  .prompt-layout {
+    grid-template-columns: 380px minmax(0, 1fr);
+    gap: 26px;
+  }
+  .prompt-config-body {
+    padding: 24px;
+  }
+  .prompt-app .page-heading h1 {
+    font-size: 33px;
+  }
+  .prompt-app .page-heading p {
+    font-size: 13px;
+  }
+  .prompt-app .button {
+    font-size: 12px;
+  }
+  .prompt-section-body {
+    font-size: 13px;
+  }
+  .context-code {
+    font-size: 11px;
+  }
+  .prompt-preview-heading h2 {
+    font-size: 23px;
+  }
+  .prompt-workflow {
+    font-size: 12px;
+    padding: 17px 22px;
+  }
+  .prompt-document {
+    height: 790px;
+  }
+  .prompt-config .card-heading p {
+    max-width: none;
+    font-size: 11px;
+  }
+}
+@media (max-width: 1250px) {
+  .prompt-layout {
+    grid-template-columns: 315px minmax(0, 1fr);
+    gap: 18px;
+  }
+  .prompt-config-body {
+    padding: 18px;
+  }
+  .prompt-config .card-heading {
+    padding: 20px 18px;
+  }
+  .prompt-config h2 {
+    font-size: 15px;
+  }
+  .prompt-preview-heading {
+    padding: 23px 21px;
+  }
+  .prompt-preview-heading h2 {
+    font-size: 18px;
+  }
+  .prompt-section {
+    padding: 22px 21px;
+  }
+  .prompt-section-title small {
+    display: none;
+  }
+  .prompt-workflow {
+    gap: 12px;
+    font-size: 10px;
+    padding: 15px;
+  }
+  .prompt-workflow > .tag {
+    font-size: 8px;
+  }
+  .prompt-workflow > svg {
+    width: 12px;
+  }
+  .prompt-export-bar {
+    padding: 15px;
+    gap: 7px;
+  }
+  .prompt-export-bar > div {
+    font-size: 8px;
+  }
+  .prompt-export-bar .button {
+    font-size: 9px;
+    gap: 5px;
+    padding: 9px;
+  }
+  .prompt-export-bar .button > svg {
+    width: 13px;
+  }
+  .handoff-card {
+    padding: 18px 16px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .handoff-card > div {
+    flex: 1;
+  }
+  .handoff-card a {
+    margin-left: 49px;
+  }
+  .prompt-app .page-heading h1 {
+    font-size: 25px;
+  }
+  .prompt-app .page-heading p {
+    font-size: 11px;
+    max-width: 500px;
+  }
+  .prompt-app .heading-actions {
+    flex-shrink: 0;
+  }
+  .prompt-app .heading-actions > .button {
+    font-size: 9px;
+    padding: 10px;
+  }
+  .platform-picker > button {
+    font-size: 11px;
+    gap: 6px;
+    padding: 11px 8px;
+  }
+  .platform-picker > button > svg {
+    width: 12px;
+  }
+  .goal-description {
+    font-size: 10px;
+  }
+  .prompt-config .card-heading p {
+    max-width: 230px;
+  }
+  .prompt-preview-toolbar {
+    padding: 12px 17px;
+  }
+  .preview-tabs > button {
+    font-size: 9px;
+    padding: 7px 9px;
+  }
+  .prompt-preview-toolbar > span {
+    font-size: 7px;
+  }
+  .prompt-check strong {
+    font-size: 10px;
+  }
+  .prompt-check small {
+    font-size: 9px;
+  }
+  .privacy-options {
+    padding: 12px 10px;
+  }
+  .privacy-options summary {
+    font-size: 9px;
+  }
+  .prompt-scope-row .field label {
+    font-size: 10px;
+  }
+  .prompt-config-body .field select {
+    font-size: 10px;
+  }
+  .campaign-intro {
+    flex-wrap: wrap;
+  }
+  .campaign-intro p {
+    max-width: 100%;
+  }
+  .campaign-intro > .button-row {
+    margin-left: auto;
+  }
+  .campaign-metrics {
+    gap: 14px;
+  }
+  .campaign-metrics > div {
+    padding: 20px 17px;
+  }
+  .campaign-metrics span {
+    font-size: 10px;
+  }
+}
+@media (max-width: 1050px) {
+  .prompt-layout {
+    grid-template-columns: 1fr;
+  }
+  .prompt-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    gap: 17px;
+    align-items: start;
+  }
+  .prompt-property-summary {
+    margin-top: 0;
+    position: sticky;
+    top: 20px;
+  }
+  .prompt-config-body {
+    padding: 23px;
+  }
+  .prompt-config .card-heading {
+    padding: 22px 23px;
+  }
+  .prompt-config .card-heading p {
+    max-width: none;
+  }
+  .prompt-workflow > .tag {
+    display: none;
+  }
+  .prompt-workflow {
+    justify-content: space-between;
+    font-size: 10px;
+  }
+  .prompt-workflow > span {
+    gap: 6px;
+  }
+  .prompt-preview-column {
+    margin-top: 3px;
+  }
+  .prompt-preview-heading h2 {
+    font-size: 22px;
+  }
+  .prompt-section-title small {
+    display: block;
+  }
+  .prompt-section-body {
+    font-size: 12px;
+  }
+  .context-code {
+    font-size: 10px;
+  }
+  .prompt-preview-toolbar > span {
+    font-size: 9px;
+  }
+  .preview-tabs > button {
+    font-size: 10px;
+  }
+  .prompt-export-bar {
+    padding: 17px 22px;
+    gap: 10px;
+  }
+  .prompt-export-bar > div {
+    font-size: 10px;
+  }
+  .prompt-export-bar .button {
+    font-size: 10px;
+    padding: 10px 13px;
+  }
+  .handoff-card a {
+    margin-left: auto;
+  }
+  .prompt-app .heading-actions {
+    padding-top: 8px;
+  }
+  .prompt-app .page-heading h1 {
+    font-size: 24px;
+  }
+  .prompt-app .page-heading p {
+    max-width: 410px;
+  }
+  .prompt-controls .platform-picker > button {
+    font-size: 12px;
+  }
+  .prompt-controls .prompt-check strong {
+    font-size: 11px;
+  }
+  .prompt-controls .prompt-check small {
+    font-size: 10px;
+  }
+  .prompt-config-body .field select {
+    font-size: 11px;
+  }
+  .prompt-scope-row .field label {
+    font-size: 11px;
+  }
+  .prompt-config textarea {
+    font-size: 12px !important;
+  }
+  .privacy-options summary {
+    font-size: 11px;
+  }
+  .privacy-options .prompt-check strong {
+    font-size: 11px;
+  }
+  .privacy-options .prompt-check small {
+    font-size: 10px;
+  }
+  .privacy-footnote {
+    font-size: 10px;
+  }
+  .local-generation {
+    font-size: 9px;
+  }
+  .prompt-subheading {
+    font-size: 11px;
+  }
+  .goal-description {
+    font-size: 11px;
+  }
+  .campaign-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+  .campaign-metrics span {
+    font-size: 11px;
+  }
+  .prompt-structure > div:last-child {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .prompt-app .page-heading h1 {
+    font-size: 27px;
+  }
+  .prompt-app .page-heading p {
+    max-width: none;
+    font-size: 12px;
+  }
+  .prompt-app .heading-actions {
+    padding-top: 0;
+  }
+  .prompt-app .heading-actions > .button {
+    font-size: 10px;
+    padding: 10px 13px;
+  }
+  .prompt-app .topbar-right {
+    gap: 12px;
+  }
+  .prompt-app .topbar-right > .tag {
+    font-size: 7px;
+    padding: 4px 6px;
+  }
+  .prompt-workflow {
+    font-size: 9px;
+    gap: 8px;
+    padding: 14px 12px;
+  }
+  .prompt-workflow > span {
+    gap: 5px;
+  }
+  .prompt-workflow > span > i {
+    width: 18px;
+    height: 18px;
+    font-size: 8px;
+  }
+  .prompt-workflow > svg {
+    width: 10px;
+  }
+  .prompt-controls {
+    grid-template-columns: minmax(0, 1fr) 215px;
+    gap: 15px;
+  }
+  .prompt-config-body {
+    padding: 20px;
+  }
+  .prompt-config .card-heading {
+    padding: 20px;
+  }
+  .prompt-config h2 {
+    font-size: 15px;
+  }
+  .prompt-config .card-heading p {
+    font-size: 10px;
+  }
+  .prompt-property-summary {
+    padding: 17px 14px;
+    display: block;
+  }
+  .summary-icon {
+    margin-bottom: 12px;
+  }
+  .prompt-property-summary small {
+    font-size: 7px;
+  }
+  .prompt-property-summary h3 {
+    font-size: 13px;
+  }
+  .prompt-property-summary p {
+    font-size: 9px;
+  }
+  .prompt-config-body .field select {
+    font-size: 11px;
+  }
+  .prompt-controls .platform-picker > button {
+    font-size: 11px;
+  }
+  .prompt-controls .prompt-check strong {
+    font-size: 10px;
+  }
+  .prompt-controls .prompt-check small {
+    font-size: 9px;
+  }
+  .prompt-config-body .field label {
+    font-size: 11px;
+  }
+  .privacy-options summary {
+    font-size: 10px;
+  }
+  .privacy-options .prompt-check strong {
+    font-size: 10px;
+  }
+  .privacy-options .prompt-check small {
+    font-size: 9px;
+  }
+  .privacy-footnote {
+    font-size: 9px;
+  }
+  .goal-description {
+    font-size: 10px;
+  }
+  .prompt-scope-row {
+    gap: 10px;
+  }
+  .prompt-subheading {
+    font-size: 10px;
+  }
+  .prompt-app .generate-button {
+    font-size: 12px;
+  }
+  .prompt-preview-heading {
+    padding: 23px;
+  }
+  .prompt-preview-heading h2 {
+    font-size: 22px;
+  }
+  .prompt-section {
+    padding: 22px;
+  }
+  .prompt-document {
+    height: 650px;
+  }
+  .prompt-export-bar {
+    padding: 17px 20px;
+  }
+  .prompt-app .main-footer {
+    font-size: 8px;
+  }
+  .prompt-section-title small {
+    font-size: 8px;
+  }
+  .prompt-section-title h3 {
+    font-size: 14px;
+  }
+  .handoff-card p {
+    font-size: 10px;
+  }
+  .handoff-note {
+    font-size: 9px;
+  }
+  .campaign-intro h2 {
+    font-size: 21px;
+  }
+  .campaign-intro p {
+    font-size: 11px;
+  }
+  .campaign-intro {
+    padding: 22px;
+  }
+  .guide-hero {
+    padding: 25px;
+  }
+  .guide-hero h2 {
+    font-size: 23px;
+  }
+  .guide-hero p {
+    font-size: 12px;
+  }
+  .guide-step {
+    padding: 22px;
+    gap: 16px;
+  }
+  .guide-step h3 {
+    font-size: 14px;
+  }
+  .guide-step p {
+    font-size: 11px;
+  }
+}
+@media (max-width: 560px) {
+  .prompt-controls {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 17px;
+  }
+  .prompt-controls > .card {
+    width: 100%;
+  }
+  .prompt-property-summary {
+    display: flex;
+    position: static;
+    gap: 12px;
+    align-items: center;
+    padding: 18px;
+  }
+  .summary-icon {
+    margin-bottom: 0;
+    width: 40px;
+    height: 40px;
+  }
+  .prompt-property-summary h3 {
+    font-size: 14px;
+    margin-top: 5px;
+  }
+  .prompt-property-summary p {
+    font-size: 10px;
+  }
+  .property-summary-stats {
+    font-size: 9px;
+    gap: 7px;
+    margin: 10px 0 12px;
+  }
+  .prompt-property-summary .text-link {
+    font-size: 11px;
+  }
+  .prompt-workflow {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 15px 17px;
+    position: relative;
+  }
+  .prompt-workflow > svg {
+    display: none;
+  }
+  .prompt-workflow > span {
+    font-size: 10px;
+    gap: 8px;
+  }
+  .prompt-workflow > span > i {
+    width: 20px;
+    height: 20px;
+    font-size: 9px;
+  }
+  .prompt-config-body {
+    padding: 22px;
+  }
+  .prompt-config .card-heading {
+    padding: 22px;
+  }
+  .prompt-config h2 {
+    font-size: 16px;
+  }
+  .prompt-config .card-heading p {
+    font-size: 11px;
+  }
+  .prompt-controls .platform-picker > button {
+    font-size: 13px;
+    padding: 12px;
+  }
+  .prompt-controls .prompt-check strong {
+    font-size: 12px;
+  }
+  .prompt-controls .prompt-check small {
+    font-size: 10px;
+  }
+  .prompt-config-body .field select {
+    font-size: 12px;
+  }
+  .prompt-config-body .field label {
+    font-size: 12px;
+  }
+  .prompt-scope-row .field label {
+    font-size: 11px;
+  }
+  .goal-description {
+    font-size: 11px;
+  }
+  .control-label {
+    font-size: 12px;
+  }
+  .prompt-subheading {
+    font-size: 11px;
+  }
+  .privacy-options {
+    padding: 14px 12px;
+  }
+  .privacy-options summary {
+    font-size: 11px;
+  }
+  .privacy-options .prompt-check strong {
+    font-size: 11px;
+  }
+  .privacy-options .prompt-check small {
+    font-size: 10px;
+  }
+  .privacy-footnote {
+    font-size: 9px;
+  }
+  .prompt-config textarea {
+    font-size: 12px !important;
+  }
+  .local-generation {
+    font-size: 9px;
+  }
+  .prompt-app .generate-button {
+    font-size: 13px;
+    min-height: 47px;
+  }
+  .prompt-preview-heading {
+    padding: 22px 20px;
+  }
+  .prompt-preview-heading h2 {
+    font-size: 20px;
+    line-height: 1.5;
+    max-width: 230px;
+  }
+  .prompt-preview-heading p {
+    font-size: 10px;
+    line-height: 1.9;
+  }
+  .preview-eyebrow {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+  .prompt-badge {
+    width: 36px;
+    height: 42px;
+  }
+  .prompt-badge > svg {
+    width: 19px;
+  }
+  .prompt-preview-toolbar {
+    padding: 11px 16px;
+    gap: 8px;
+  }
+  .prompt-preview-toolbar > span {
+    font-size: 7px;
+  }
+  .preview-tabs > button {
+    font-size: 9px;
+    padding: 7px 10px;
+  }
+  .prompt-section {
+    padding: 22px 19px;
+  }
+  .prompt-section-title small {
+    display: none;
+  }
+  .prompt-section-title h3 {
+    font-size: 14px;
+  }
+  .prompt-section-body {
+    font-size: 12px;
+    line-height: 1.95;
+  }
+  .context-code {
+    font-size: 10px;
+    padding: 13px;
+    line-height: 1.9;
+  }
+  .prompt-document {
+    height: 600px;
+  }
+  .prompt-export-bar {
+    padding: 15px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .prompt-export-bar > div {
+    font-size: 9px;
+    width: 100%;
+    margin-bottom: 4px;
+  }
+  .prompt-export-bar .button {
+    flex: 1;
+    font-size: 11px;
+    padding: 10px 12px;
+  }
+  .prompt-export-bar .button > svg {
+    width: 15px;
+  }
+  .prompt-warnings {
+    padding: 14px;
+    gap: 8px;
+  }
+  .prompt-warnings strong {
+    font-size: 10px;
+  }
+  .prompt-warnings li {
+    font-size: 10px;
+  }
+  .handoff-card {
+    gap: 11px;
+    padding: 18px;
+    align-items: flex-start;
+  }
+  .handoff-card > div {
+    flex-basis: calc(100% - 60px);
+  }
+  .handoff-card h3 {
+    font-size: 14px;
+  }
+  .handoff-card p {
+    font-size: 10px;
+  }
+  .handoff-card a {
+    margin-left: 50px;
+    font-size: 11px !important;
+    padding: 10px 13px;
+    min-height: 37px !important;
+  }
+  .handoff-note {
+    font-size: 9px;
+    line-height: 1.9;
+  }
+  .prompt-app .page-heading h1 {
+    font-size: 26px;
+    line-height: 1.5;
+    max-width: 340px;
+  }
+  .prompt-app .page-heading p {
+    font-size: 11px;
+    line-height: 1.9;
+  }
+  .prompt-app .topbar-right > .tag {
+    font-size: 6px;
+  }
+  .prompt-app .breadcrumbs {
+    font-size: 8px;
+    gap: 7px;
+  }
+  .campaign-intro {
+    padding: 22px 19px;
+  }
+  .campaign-intro h2 {
+    font-size: 21px;
+  }
+  .campaign-intro .button-row {
+    width: 100%;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+  .campaign-intro .button {
+    font-size: 10px;
+    flex: 1;
+  }
+  .campaign-metrics {
+    gap: 12px;
+  }
+  .campaign-metrics > div {
+    padding: 19px 16px;
+  }
+  .campaign-metrics span {
+    font-size: 9px;
+    line-height: 1.8;
+  }
+  .campaign-metrics strong {
+    font-size: 28px;
+  }
+  .campaign-settings {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 13px;
+    padding: 21px;
+  }
+  .campaign-settings p {
+    font-size: 11px;
+  }
+  .guide-hero h2 {
+    font-size: 22px;
+    line-height: 1.5;
+  }
+  .guide-hero p {
+    font-size: 11px;
+  }
+  .guide-hero {
+    padding: 24px 20px;
+  }
+  .guide-step {
+    padding: 21px 17px;
+    gap: 13px;
+  }
+  .guide-step > span {
+    width: 29px;
+    height: 29px;
+    font-size: 9px;
+  }
+  .guide-step h3 {
+    font-size: 13px;
+  }
+  .guide-step p {
+    font-size: 11px;
+  }
+  .prompt-structure > div:last-child {
+    grid-template-columns: 1fr 1fr;
+    gap: 11px;
+    padding: 0 17px 20px;
+  }
+  .prompt-structure > div:last-child > div {
+    padding: 14px;
+  }
+  .prompt-structure strong {
+    font-size: 12px;
+  }
+  .prompt-structure p {
+    font-size: 9px;
+  }
+  .prompt-app .notice {
+    font-size: 10px;
+  }
+  .manual-copy {
+    font-size: 10px;
+  }
+}
