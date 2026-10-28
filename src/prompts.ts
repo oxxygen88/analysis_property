@@ -1,6 +1,13 @@
 import { today, type Project, type Property } from './domain';
+import { COMPARABLE_CSV_COLUMNS } from './comparable-csv';
+import { formatRooms, validRoomCounts } from './rooms';
 
 export const promptGoals = [
+  {
+    id: 'research',
+    label: 'Riset pembanding → CSV siap impor',
+    description: 'Cari iklan nyata, lalu hasilkan CSV sesuai kolom Data pembanding V1.',
+  },
   {
     id: 'complete',
     label: 'Analisis properti lengkap',
@@ -8,8 +15,9 @@ export const promptGoals = [
   },
   {
     id: 'pricing',
-    label: 'Riset pembanding & harga',
-    description: 'Cari bukti pasar dan susun harga pembukaan yang kompetitif.',
+    label: 'Rekomendasi harga jual 180 hari',
+    description:
+      'Tinjau harga pembukaan yang kompetitif untuk acuan penjualan relatif cepat, bukan jaminan 180 hari.',
   },
   {
     id: 'evaluation',
@@ -70,6 +78,8 @@ export interface PromptSection {
 
 export function validatePromptProperty(p: Property) {
   const errors: string[] = [];
+  if (!validRoomCounts(p.beds, p.staffBeds) || !validRoomCounts(p.baths, p.staffBaths))
+    errors.push('Format kamar harus seperti 4 atau 4+1; bagian setelah + menunjukkan ART/servis.');
   if (!p.title.trim()) errors.push('Nama properti wajib diisi.');
   if (!p.address.trim() || !p.area.trim()) errors.push('Alamat dan area wajib diisi.');
   const kind = p.kind || 'Rumah tapak';
@@ -123,6 +133,12 @@ export function promptContext(project: Project, options: PromptOptions) {
       lantai: numberOrUnknown(p.floors),
       kamar_tidur: numberOrUnknown(p.beds),
       kamar_mandi: numberOrUnknown(p.baths),
+      kamar_tidur_notasi: formatRooms(p.beds, p.staffBeds),
+      kamar_tidur_ART: p.staffBeds ?? null,
+      kamar_mandi_notasi: formatRooms(p.baths, p.staffBaths),
+      kamar_mandi_ART_servis: p.staffBaths ?? null,
+      penjelasan_kamar:
+        'Angka sebelum + adalah kamar utama/keluarga; angka setelah + adalah kamar ART atau kamar mandi ART/servis. Jangan gabungkan sebagai kamar utama.',
       carport_mobil: numberOrUnknown(p.carport),
       garasi_mobil: numberOrUnknown(p.garage),
       kondisi_menurut_pemilik: p.title.trim() ? p.condition : null,
@@ -166,6 +182,11 @@ export function promptContext(project: Project, options: PromptOptions) {
       luas_tanah_m2: c.land,
       luas_bangunan_m2: c.building,
       kamar_tidur: c.beds,
+      kamar_tidur_ART: c.staffBeds ?? null,
+      kamar_tidur_notasi: formatRooms(c.beds, c.staffBeds),
+      kamar_mandi: c.baths ?? null,
+      kamar_mandi_ART_servis: c.staffBaths ?? null,
+      kamar_mandi_notasi: formatRooms(c.baths, c.staffBaths),
       kondisi: c.condition,
       sertifikat: c.certificate,
       harga_Rp: c.price,
@@ -206,10 +227,12 @@ export function promptContext(project: Project, options: PromptOptions) {
 }
 
 const tasks: Record<PromptGoal, string> = {
+  research:
+    'Kumpulkan data iklan properti pembanding yang nyata dan relevan dengan properti pengguna, untuk dimasukkan ke Data pembanding aplikasi RuangNilai V1. Targetkan 5–10 properti unik bila tersedia. Tujuan tahap ini adalah mengumpulkan bukti, bukan langsung memberikan harga jual subjek. Hasilkan CSV yang persis mengikuti skema impor pada Output. Jangan membuat harga, alamat, ukuran, sertifikat, kondisi, atau tautan fiktif demi melengkapi baris.',
   complete:
     'Lakukan analisis properti lengkap: riset pembanding, rentang indikasi harga, harga pembukaan yang menarik namun tidak terlalu rendah, kekuatan, kelemahan, potensi penggunaan, profil kebutuhan calon pembeli, strategi pemasaran bertahap hingga 180 hari, dan aturan evaluasi respons pasar.',
   pricing:
-    'Riset properti pembanding yang relevan dan susun rentang indikasi harga serta rekomendasi harga pembukaan yang kompetitif. Jelaskan alasan pemilihan/pengeluaran pembanding, perbedaan karakteristik, asumsi penyesuaian, ruang negosiasi, dan batas kualitas bukti.',
+    'Tentukan rekomendasi harga pembukaan dan rentang harga jual yang kompetitif agar properti menarik pertanyaan dan survei dalam acuan penjualan 180 hari, tanpa harga terlalu tinggi maupun terlalu rendah. Gunakan pembanding yang tersedia dan riset tambahan bila fitur web tersedia. Bandingkan harga iklan saat ini, jelaskan penyesuaian, ruang negosiasi, skenario percepatan, dan titik evaluasi. Angka 180 hari bukan tenggat mutlak, bukan jaminan terjual, dan bukan probabilitas penjualan yang telah dikalibrasi.',
   evaluation:
     'Evaluasi respons iklan per periode dan harga yang benar-benar diuji. Diagnosis jangkauan, kualitas prospek, konversi chat ke survei, serta hambatan setelah kunjungan. Rekomendasikan mempertahankan harga, memperbaiki pemasaran, atau menguji penyesuaian harga hanya jika bukti mendukung.',
   marketing:
@@ -250,7 +273,7 @@ export function buildPrompt(
     ? `Periksa terlebih dahulu apakah sesi ${options.platform} ini memiliki akses pencarian web. Jika tersedia, cari iklan publik yang boleh diakses sesuai lingkup pada Context. Catat URL, sumber, tanggal akses, harga, jenis harga, lokasi, ukuran, kondisi, dan ketepatan lokasi. Utamakan 5–10 rumah/properti sejenis, data berusia maksimal ${options.freshnessDays} hari, tanpa mengklaim mencakup seluruh internet. Hormati batas akses sumber; jangan melewati login, paywall, atau pembatasan. Jika pencarian web tidak tersedia atau sumber tidak dapat diperiksa, nyatakan keterbatasannya dan gunakan hanya data pengguna yang relevan; jangan berpura-pura telah mencari.`
     : 'Jangan melakukan pencarian web. Gunakan hanya pembanding dan bukti yang disediakan pengguna. Nyatakan bahwa harga/sumber belum dicek secara langsung jika memang belum diperiksa.';
   const reasoning = `Berikan ringkasan metode, asumsi, dan perhitungan yang dapat ditinjau; tidak perlu menampilkan proses berpikir internal.
-1. Periksa kelengkapan Context, jenis properti, legalitas, kondisi, dan kesesuaian lokasi. Informasi pemilik bukan hasil inspeksi. Sesuaikan metode untuk rumah tapak, ruko, tanah kavling, atau apartemen; jangan memakai bobot yang sama tanpa dasar.
+1. Periksa kelengkapan Context, jenis properti, legalitas, kondisi, dan kesesuaian lokasi. Informasi pemilik bukan hasil inspeksi. Notasi KT 4+1 berarti 4 kamar utama/keluarga dan 1 kamar ART; KM 3+1 berarti 3 kamar mandi utama dan 1 ART/servis. Jangan menganggapnya 5 kamar keluarga atau 4 kamar mandi utama. Sesuaikan metode untuk rumah tapak, ruko, tanah kavling, atau apartemen; jangan memakai bobot yang sama tanpa dasar.
 2. Pisahkan harga penawaran dari transaksi yang didukung bukti. Deduplicasi iklan lintas agen dan URL, tandai lokasi perkiraan, iklan lama, data ekstrem, serta pembanding yang tidak sejenis. Jangan menganggap iklan hilang berarti terjual. Radius adalah jarak garis lurus; tinjau cluster, akses, dan batas lingkungan. Jangan memperluas area diam-diam.
 3. Jelaskan setiap penyesuaian harga beserta dasar dan keterbatasannya. Jangan mengarang diskon negosiasi atau menggunakan rata-rata harga/m2 secara buta. Jika layak, tampilkan rentang harga, harga pembukaan, ruang negosiasi, dan skenario lebih cepat; hindari presisi semu atau angka probabilitas tanpa kalibrasi.
 4. Target 180 hari adalah panduan menjual relatif cepat, bukan janji. Harga diharapkan menarik pertanyaan dan survei, tanpa terlalu tinggi atau terlalu rendah. Harga minimum internal adalah batas penjual, bukan bukti nilai pasar; jika lebih tinggi dari indikasi pasar, jelaskan konflik tanpa memaksakan hasil.
@@ -265,10 +288,11 @@ ${options.goal === 'evaluation' ? 'Jika catatan pemasaran belum tersedia, jangan
 Selesaikan ketika semua bagian Task telah dijawab atau ditandai secara spesifik sebagai belum dapat ditentukan, setiap klaim utama memiliki sumber atau status asumsi, dan ada langkah berikutnya yang dapat dilakukan pengguna. Hasil ini bukan penilaian resmi KJPP atau jaminan penjualan.`;
   const commonOutput = `Gunakan bahasa Indonesia yang jelas, harga dalam rupiah penuh (boleh tambah ringkasan juta/miliar), ukuran m2, serta tanggal akses dan acuan WIB. Pisahkan fakta, keterangan pemilik, asumsi, dan hal yang belum diketahui. Jangan menyajikan placeholder sebagai fakta. Sertakan daftar sumber yang benar-benar diperiksa dan keterbatasannya.`;
   const outputs: Record<PromptGoal, string> = {
+    research: `Keluarkan satu blok CSV UTF-8 (RFC 4180) dengan HEADER PERSIS:\n${COMPARABLE_CSV_COLUMNS.join(',')}\nAturan interoperabilitas RuangNilai V1:\n- Satu baris per properti unik; jangan masukkan baris penjelasan, Markdown table, ringkasan harga, atau baris total ke CSV. Kutip nilai yang mengandung koma, kutip ganda, atau baris baru dengan aturan CSV.\n- Kolom wajib agar baris bisa diimpor: title,address,area,land,building,price,source,observedAt. Untuk hasil riset AI, sertakan juga url asli yang benar-benar diperiksa. Alamat boleh berupa area/cluster/lokasi perkiraan yang dinyatakan demikian; jangan mengarang nomor jalan. Normalisasikan area/cluster mengikuti Context hanya jika benar-benar wilayah yang sama.\n- land dan building harus angka m2 positif; price berupa rupiah penuh tanpa Rp atau pemisah ribuan (contoh format angka saja: 2800000000). lat/lng opsional, desimal dengan titik, kosongkan keduanya jika tidak pasti. Jangan mengarang koordinat.\n- beds dan baths menerima notasi 4 atau 4+1. Angka setelah + adalah ART/servis, bukan penambahan kamar keluarga. Jika jumlah atau pembagiannya tidak diketahui, kosongkan; jangan menebak atau mengubah 4+1 menjadi 5.\n- condition hanya: Siap huni, Perlu renovasi ringan, Perlu renovasi besar, Belum diketahui. Jika tidak dinyatakan sumber, gunakan Belum diketahui. certificate hanya SHM, HGB, atau Lainnya / belum diketahui. Jangan menyimpulkan legalitas/kondisi dari foto atau harga.\n- observedAt wajib tanggal pengamatan/pemeriksaan nyata YYYY-MM-DD, tidak di masa depan. Gunakan tanggal saat sumber benar-benar diperiksa; bukan tanggal terbit yang dibuat-buat. priceType Penawaran untuk iklan. Gunakan Transaksi hanya jika ada bukti transaksi, bukan iklan yang hilang; seluruh impor tetap belum diverifikasi hingga diperiksa pengguna.\n- Jika luas, harga, lokasi, sumber atau tanggal wajib tidak tersedia, jangan masukkan baris yang tidak lengkap ke CSV. Tempatkan calon tersebut pada daftar perlu-verifikasi di luar blok CSV.\nSetelah CSV, tulis daftar sumber yang diperiksa, duplikat yang disingkirkan, keterbatasan, dan data yang perlu diverifikasi. Jika tidak ada hasil yang layak, keluarkan header saja dan jelaskan kekurangan data; jangan membuat contoh pembanding seolah fakta. Jangan merekomendasikan harga subjek pada tahap riset pembanding ini.`,
     complete:
       'Susun: (1) ringkasan eksekutif; (2) profil dan kelengkapan properti; (3) tabel pembanding dan sumber; (4) rentang harga, harga pembukaan, negosiasi, dan dasar penyesuaian jika bukti cukup; (5) kekuatan, kelemahan, potensi, serta kebutuhan calon pembeli; (6) strategi hari 1–14, 15–30, 31–60, 61–90, 91–120, 121–150, 151–180; (7) tabel keputusan berdasarkan viewer/chat/survei/penawaran; (8) risiko, asumsi, dan prioritas tindakan berikutnya.',
     pricing:
-      'Susun tabel pembanding: sumber/URL, tanggal, lokasi, LT/LB, kondisi, legalitas, harga penawaran/transaksi, status verifikasi, alasan dipilih/dikeluarkan. Lanjutkan tabel penyesuaian yang dapat diaudit, rentang indikasi, usulan harga pembukaan, skenario negosiasi dan percepatan, kualitas bukti, serta hal yang perlu diverifikasi.',
+      'Susun: (1) ringkasan rekomendasi harga jual dengan acuan 180 hari; (2) tabel pembanding berisi sumber/URL, tanggal, lokasi, LT/LB, KT/KM dengan ART terpisah, kondisi, legalitas, harga penawaran/transaksi, verifikasi, dan alasan dipilih/dikeluarkan; (3) penyesuaian dan perhitungan yang dapat ditinjau; (4) rentang indikasi pasar, usulan harga iklan awal, ruang negosiasi, serta skenario penjualan lebih cepat; (5) perbandingan dengan harga iklan pengguna; (6) rencana evaluasi bertahap hingga hari 180 berdasarkan viewer, chat, survei, penawaran dan hambatan; (7) asumsi, kualitas bukti dan batasan. Jika bukti belum cukup, jangan mengeluarkan harga final. Setiap usulan perubahan harga perlu alasan dan persetujuan penjual.',
     evaluation:
       'Susun tabel per periode: harga diuji, jangkauan, chat unik, survei terjadwal, survei terlaksana, rasio, penawaran, biaya, hambatan. Lalu berikan diagnosis, kekuatan sinyal/sampel, tindakan prioritas, apakah harga perlu diuji ulang dan alasannya, usulan bersyarat jika layak, serta metrik dan waktu evaluasi berikutnya.',
     marketing:

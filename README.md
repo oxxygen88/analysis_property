@@ -1,75 +1,95 @@
-# RuangNilai Prompt Studio
+# RuangNilai — V1 + Prompt AI
 
-Generator prompt analisis properti Indonesia untuk **ChatGPT** dan **Claude**. Format tetap: **Role, Task, Context, Reasoning, Stop Condition, Output**.
+Dashboard V1 dipertahankan: detail properti, data pembanding, estimasi harga lokal, evaluasi pemasaran 180 hari, serta laporan PDF dan presentasi PowerPoint. Generator prompt menjadi **pendamping**, bukan pengganti dashboard.
 
-Versi 2 mengganti dashboard rekomendasi harga otomatis dengan alur **isi properti → pilih tujuan → generate prompt → salin → jalankan pada percakapan AI**. Aplikasi menyusun teks secara lokal, tidak menghubungi AI, tidak memerlukan kunci API, dan tidak mengklaim telah melakukan riset pasar.
+## Dua generator prompt
 
-## Cara menggunakan
+Semua prompt memakai format **Role, Task, Context, Reasoning, Stop Condition, Output** dan dapat disalin ke ChatGPT atau Claude tanpa API key.
 
-1. Buka aplikasi. Data properti versi sebelumnya pada browser dan alamat situs yang sama tetap digunakan.
-2. Isi **Detail properti**, lalu klik **Simpan & buat prompt**. Rumah tapak, ruko, tanah kavling, dan apartemen dapat dijadikan konteks prompt. Status sertifikat boleh belum diketahui; AI diminta memperlakukannya sebagai keterbatasan.
-3. Pilih **Generator prompt**, platform ChatGPT/Claude, dan tujuan: analisis lengkap, riset pembanding/harga, evaluasi iklan, strategi marketing 180 hari, materi iklan, atau laporan/outline presentasi.
-4. Atur lingkup area/cluster/radius, usia data, permintaan riset web, serta konteks yang ingin disertakan. Pembanding dan performa pemasaran **opsional**; tidak perlu 3 pembanding untuk menghasilkan prompt.
-5. Klik **Generate prompt**. Tinjau enam bagian, lalu **Salin prompt** atau **Unduh TXT**. Format Markdown tersedia di **Data & pengaturan**. Jika izin clipboard ditolak, aplikasi menampilkan teks yang dipilih untuk disalin manual.
-6. Klik **Buka ChatGPT** atau **Buka Claude**, aktifkan fitur pencarian web jika tersedia pada akun/sesi tersebut, tempel prompt, dan kirim. Tombol membuka situs AI; tidak mengirim prompt secara otomatis.
-7. Jika diperlukan, unggah foto secara terpisah ke percakapan AI. Teks prompt hanya menyebut jumlah foto, tidak menyertakan gambar.
-8. Tinjau bukti dan asumsi jawaban AI. Hasil AI tidak otomatis diimpor kembali ke aplikasi. Saat iklan berjalan, catat hasil di **Performa pemasaran**, lalu buat prompt evaluasi baru.
+### 1. Cari pembanding, lalu impor CSV
 
-## Apa yang diminta prompt
+1. Isi/simpan **Detail properti**. Di Ringkasan tanpa cukup data, klik **Cari pembanding dengan prompt AI**, atau di **Data pembanding** klik **Generate prompt pembanding**.
+2. Pilih ChatGPT/Claude, lingkup area/cluster/radius, usia data, dan pilihan privasi. Klik **Generate prompt**, lalu salin atau unduh TXT.
+3. Jalankan prompt di percakapan AI dengan pencarian web jika tersedia pada akun/sesi Anda. Aplikasi sendiri tidak mengambil iklan dari internet dan tidak mengirim data ke AI.
+4. AI diminta mencari 5–10 properti nyata dan mengeluarkan CSV dengan kolom yang persis sesuai aplikasi. Salin **header dan baris CSV saja**, tanpa pagar kode atau penjelasan.
+5. Kembali ke **Data pembanding → Tempel CSV dari AI → Impor data CSV**, atau unggah file melalui **Impor CSV**.
+6. Periksa URL, tanggal, lokasi, ukuran, kondisi, sertifikat, harga, serta kemungkinan duplikat. Semua hasil impor berstatus **belum diverifikasi**, meskipun AI menambahkan kolom `verified`.
+7. Minimal **3 pembanding unik yang relevan** dengan kelompok harga yang sama diperlukan untuk menghitung estimasi lokal. Disarankan 5 atau lebih. Filter yang digunakan terlihat pada tabel.
 
-- Riset hanya bila sesi AI benar-benar memiliki akses web. Jika tidak, AI harus menyatakan keterbatasannya dan meminta data, bukan mengarang akses atau sumber.
-- Pisahkan harga penawaran dan transaksi. Periksa duplikat, lokasi perkiraan, usia, legalitas, serta kesesuaian jenis/ukuran properti.
-- Untuk rekomendasi angka harga, minta minimal 3 pembanding unik yang relevan dan dapat ditelusuri; disarankan 5–10. Jika bukti kurang, jangan memberi angka final. Ini batas analisis AI, **bukan syarat pembuatan prompt di aplikasi**.
-- Viewer kosong memicu pemeriksaan distribusi; bukan penurunan harga otomatis. Bedakan chat unik, survei terjadwal/terlaksana, penawaran, serta ukuran sampel. Sasaran survei/chat 50% bukan bukti harga pasti tepat.
-- Harga kompetitif dan strategi bertahap selama 180 hari tanpa menjamin transaksi. Perubahan harga perlu bukti dan persetujuan penjual.
-- Bagian **Reasoning** meminta ringkasan metode, asumsi, dan perhitungan yang dapat ditinjau, bukan proses berpikir internal AI.
-- Untuk PDF/PPTX, AI diminta membuat file hanya jika fitur percakapannya mendukung. Jika tidak, keluarkan Markdown/outline slide; jangan mengarang tautan unduhan.
+Jika AI tidak bisa mencari web atau bukti tidak lengkap, prompt melarang AI membuat data fiktif. Data dengan kondisi/sertifikat belum diketahui dapat disimpan, tetapi tidak digunakan untuk estimasi lokal sampai diperiksa. Baris tanpa luas, harga, sumber, alamat/area, atau tanggal yang wajib diminta ditempatkan AI di daftar perlu-verifikasi, bukan dipaksakan menjadi CSV.
 
-## Privasi dan penyimpanan
+### 2. Rekomendasi harga jual dengan acuan 180 hari
 
-- Data proyek tetap menggunakan `localStorage` key `ruangnilai.project.v1`, sehingga detail properti, foto, pembanding, dan metrik dari versi sebelumnya tidak dihapus saat aplikasi diperbarui. Preferensi prompt menggunakan `ruangnilai.prompt.v1`.
-- Pengguna baru mulai dari properti kosong; simulasi hanya dimuat melalui pilihan yang jelas.
-- Secara default prompt menyertakan **area dan cluster**, tetapi tidak alamat lengkap, koordinat, harga minimum, anggaran marketing internal, atau catatan legal internal. Terdapat pilihan eksplisit untuk menyertakan data tersebut.
-- Pilihan privasi tidak menyamarkan seluruh teks bebas: nama properti, deskripsi, URL, catatan, dan data performa tetap perlu ditinjau sendiri. Catatan kampanye dapat memuat biaya pemasaran.
-- Tidak ada sinkronisasi akun/database cloud. Cadangkan JSON melalui **Data & pengaturan** sebelum menghapus data browser, berpindah perangkat, atau membuat properti baru. Cadangan JSON memuat data internal. Pemulihan cadangan melalui UI belum tersedia.
-- Pembanding CSV tetap didukung untuk data rumah (maksimal 500 baris / 2 MB). Data pembanding jenis lain dapat ditulis pada arahan tambahan. Tanda verifikasi adalah penandaan pengguna, bukan pemeriksaan independen.
+Buka **Analisis harga → Generate prompt harga 180 hari**. Prompt menyertakan spesifikasi, pembanding pilihan, dan performa pemasaran jika tersedia. AI diminta memberikan rentang indikasi, harga pembukaan yang kompetitif, ruang negosiasi, skenario percepatan, serta jadwal evaluasi hingga hari 180.
 
-## GitHub Pages
+Target 180 hari adalah acuan menjual relatif cepat, bukan tenggat mutlak atau jaminan. Viewer kosong tidak otomatis berarti harga harus diturunkan; prompt meminta evaluasi distribusi, kualitas iklan, lokasi, kondisi, legalitas, jadwal, dan pembiayaan. Rasio survei/chat 50% adalah patokan yang bisa ditinjau, bukan bukti pasti harga tepat atau transaksi akan terjadi.
 
-`index.html` di folder utama adalah hasil build mandiri yang siap tayang. Source entry ada di `src/index.html`.
+Hasil AI **tidak otomatis mengubah harga iklan atau estimasi lokal**. Tinjau bukti dan putuskan sendiri. Jika bukti belum cukup, AI diminta menahan angka final dan menjelaskan kekurangannya. Bagian Reasoning meminta ringkasan metode dan perhitungan yang dapat ditinjau, bukan proses berpikir internal AI.
 
-1. Buka repository → **Settings → Pages**.
-2. Pilih **Deploy from a branch → main → / (root)**, lalu **Save**.
-3. Tunggu **pages build and deployment** berhasil di tab Actions. Gunakan **Visit site**.
+## Format kamar tidur dan kamar mandi
 
-Alamat default: `https://oxxygen88.github.io/analysis_property/`. Tautan hanya berfungsi setelah deployment GitHub berhasil. Tampilan kode `/blob/main/index.html` tidak menjalankan aplikasi.
+- **KT 4+1** = 4 kamar keluarga/utama + 1 kamar ART. Tidak dianggap 5 kamar keluarga.
+- **KM 3+1** = 3 kamar mandi utama + 1 kamar mandi ART/servis.
+- Format angka biasa seperti `4` tetap didukung. Input negatif, desimal, `4++1`, atau beberapa tanda `+` ditolak.
+- Data disimpan terpisah: `beds` dan `staffBeds`, serta `baths` dan `staffBaths`. Data lama berupa angka tetap dipertahankan; jumlah ART tidak ditebak dari jumlah kamar yang lama.
+- Notasi yang sama dipakai pada detail properti, ringkasan, pembanding, prompt, PDF, dan PowerPoint. Jumlah kamar mandi ART tidak diasumsikan sama dengan jumlah kamar ART.
 
-Setelah update, refresh paksa dengan **Ctrl+Shift+R** (atau **Command+Shift+R**). Jangan menghapus data situs hanya untuk memperbarui tampilan, karena itu juga menghapus data properti lokal.
+## Skema CSV
 
-Versi mandiri juga dapat diunduh melalui **Code → Download ZIP**, diekstrak, lalu `index.html` dibuka di browser yang mendukung file lokal. Perilaku penyimpanan dapat berbeda antarbrowser; data file lokal dan situs Pages berada di tempat terpisah. File lokal diblokir oleh kebijakan Chromium pada mesin pengujian ini, sehingga alur tersebut dilaporkan SKIP; hosting HTTP pada subpath tetap diuji.
+```csv
+title,address,area,cluster,lat,lng,land,building,beds,baths,price,condition,certificate,source,url,observedAt,priceType
+```
 
-## Pengembangan
+- Harga rupiah penuh tanpa `Rp` atau pemisah ribuan; luas dalam m²; koordinat opsional memakai titik desimal dan diisi berpasangan; tanggal `YYYY-MM-DD` yang tidak berada di masa depan.
+- `beds` dan `baths` mendukung `4+1` / `3+1`. `baths` opsional untuk kompatibilitas CSV lama.
+- `condition`: `Siap huni`, `Perlu renovasi ringan`, `Perlu renovasi besar`, atau `Belum diketahui`. Tidak diisi berarti belum diketahui, bukan dianggap siap huni.
+- `certificate`: `SHM`, `HGB`, atau `Lainnya / belum diketahui`. Tidak diisi tidak dianggap SHM.
+- `priceType`: `Penawaran` atau `Transaksi`. Iklan memakai Penawaran; iklan yang hilang bukan bukti transaksi.
+- Impor maksimal 500 baris / 2 MB. Validasi bersifat atomik: jika satu baris tidak valid, tidak ada baris yang disimpan. Template hanya memuat header, tanpa pembanding contoh yang dapat disalahartikan sebagai data nyata.
 
-Prasyarat: Node.js 22.12+ (divalidasi dengan Node 24), npm.
+## Analisis dan laporan V1
+
+Estimasi lokal saat ini mendukung **rumah tapak**. Jenis ruko, tanah, dan apartemen dapat dimasukkan sebagai konteks prompt; estimasi lokal tidak dipaksakan untuk jenis tersebut.
+
+- Memisahkan harga penawaran dan transaksi. Jika ada minimal 3 transaksi yang ditandai terverifikasi pengguna, gunakan kelompok transaksi; jika tidak, perlukan minimal 3 harga penawaran. Keduanya tidak dicampur.
+- Filter area, cluster, atau radius garis lurus memerlukan data yang relevan. Radius memerlukan koordinat kedua properti. Nama area/cluster dinormalisasi, bukan dicocokkan dengan GIS.
+- Faktor luas awal: `0.65 × LT_subjek/LT_pembanding + 0.35 × LB_subjek/LB_pembanding`. Faktor kondisi `1 + 0.04 × selisih tingkat`, gabungan dibatasi `0.8–1.2`. Ini asumsi awal, belum dikalibrasi dengan transaksi lokal. ART tidak digabung menjadi jumlah kamar keluarga atau diberi premi otomatis.
+- Rentang indikasi adalah persentil 25–75, harga pembukaan persentil 35, dibulatkan Rp5 juta. Ini bukan interval keyakinan statistik atau penilaian resmi KJPP.
+- Duplikat terdeteksi, data lebih dari 180 hari, kondisi/sertifikat tidak jelas, sertifikat berbeda, lokasi tidak sesuai, dan ukuran terlalu berbeda tidak menjadi dasar estimasi. Duplikat lintas agen dengan alamat dan URL berbeda perlu ditinjau manual.
+- Catatan pemasaran memakai periode yang tidak tumpang tindih dan satu harga yang konsisten. Usulan perubahan harga lokal memerlukan bukti, batas evaluasi, dan persetujuan penjual; tidak memperbarui marketplace secara otomatis.
+- Ekspor PDF/PPTX mengikuti analisis V1. Harga minimum internal dan anggaran penjual tidak masuk laporan berbagi. Hasil jawaban AI eksternal belum diimpor otomatis ke laporan.
+
+## Privasi dan data lama
+
+Penyimpanan tetap memakai `ruangnilai.project.v1`; detail, foto, pembanding, dan catatan dari V1/V2 pada browser serta alamat situs yang sama tidak dihapus. Preferensi prompt memakai `ruangnilai.prompt.v1`.
+
+Prompt secara default tidak menyertakan alamat lengkap, koordinat, harga minimum, anggaran internal, atau catatan legal internal. Ada pilihan eksplisit untuk memasukkannya. Nama properti, URL, dan teks bebas tetap bisa memuat informasi pribadi; tinjau sebelum menyalin. Foto tidak tertanam dalam prompt dan harus diunggah terpisah jika diperlukan.
+
+Tidak ada akun cloud atau sinkronisasi. Cadangkan JSON di Pengaturan workspace sebelum menghapus data browser, berpindah perangkat, atau membuat analisis baru. Cadangan berisi data internal. Pemulihan cadangan melalui UI belum tersedia.
+
+## GitHub Pages dan pengembangan
+
+`index.html` di root adalah hasil build mandiri. Source entry berada di `src/index.html`. GitHub Pages memakai **Deploy from a branch → main → / (root)**. Tunggu deployment pada Actions berhasil, lalu buka `https://oxxygen88.github.io/analysis_property/`.
+
+Setelah update, gunakan **Ctrl+Shift+R** / **Command+Shift+R**. Jangan menghapus data situs hanya untuk memperbarui tampilan, karena itu juga menghapus data properti lokal.
+
+Prasyarat Node.js 22.12+ (divalidasi Node 24), npm.
 
 ```sh
 cd analysis_property
 npm ci
 npm run dev
-```
-
-Server bind `127.0.0.1` port `3000`; opsi `PORT` dan `HOST` ada di `.env.example`. Server hanya melayani aplikasi. `GET /api/health` menunjukkan mode `prompt-generator` dan `requiresApiKey: false`. Tidak ada endpoint AI atau biaya API.
-
-```sh
-npm test                 # logika prompt, privasi, kompatibilitas, dan helper pembanding
-npm run build            # build server ke dist/
-npm start                # jalankan build server
-npm run build:standalone # buat ulang index.html root untuk GitHub Pages
-npm run test:browser     # alur UI; server harus sudah berjalan
-npm run test:standalone  # pengujian HTML pada subpath tanpa backend
+npm test
+npm run build
+npm start
+npm run build:standalone
+npm run test:browser
+npm run test:standalone
 npm run format:check
 ```
 
-**Setelah source berubah, jalankan `npm run build:standalone` dan commit `index.html` hasilnya bersama source.** Jangan mengedit HTML hasil build secara manual. `.nojekyll` memungkinkan Pages melayani HTML siap tayang tanpa Jekyll.
+Server default `127.0.0.1:3000`; `HOST` dan `PORT` opsional. Tidak memerlukan API key. Endpoint health menunjukkan mode `property-analysis-with-prompts`. Untuk suite browser, jalankan server lebih dahulu dan atur `TEST_BASE_URL` bila port berbeda. Chromium sistem default `/usr/bin/chromium`, dapat diganti dengan `CHROMIUM_PATH`.
 
-Suite browser menggunakan `/usr/bin/chromium`; atur `CHROMIUM_PATH` dan `TEST_BASE_URL` bila berbeda. Artefak pengujian berada di `.local/checks/`, diabaikan Git. Setiap cloud task sudah terisolasi; gunakan checkout yang ada dan jangan membuat worktree kecuali pengguna meminta.
+**Setelah source diubah, buat ulang `npm run build:standalone` lalu commit `index.html` bersama source.** `.nojekyll` memungkinkan Pages menyajikan HTML tanpa Jekyll. Pengujian memakai data sintetis yang diberi label, bukan iklan nyata; artefak berada di `.local/checks/` dan diabaikan Git. File lokal `file://` diblokir kebijakan Chromium di mesin ini, sehingga validasi berfokus pada hosting HTTP dengan subpath seperti Pages.
+
+Setiap cloud task sudah terisolasi. Gunakan checkout yang ada; jangan membuat Git worktree kecuali pengguna meminta.

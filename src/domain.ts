@@ -1,4 +1,6 @@
-export type Condition = 'Siap huni' | 'Perlu renovasi ringan' | 'Perlu renovasi besar';
+import { formatRooms, validRoomCounts } from './rooms';
+export type Condition =
+  'Siap huni' | 'Perlu renovasi ringan' | 'Perlu renovasi besar' | 'Belum diketahui';
 export interface Property {
   kind?: 'Rumah tapak' | 'Ruko' | 'Tanah kavling' | 'Apartemen';
   city?: string;
@@ -16,6 +18,8 @@ export interface Property {
   floors: number;
   beds: number;
   baths: number;
+  staffBeds?: number;
+  staffBaths?: number;
   carport: number;
   garage: number;
   certificate: 'SHM' | 'HGB' | 'Lainnya / belum diketahui';
@@ -49,6 +53,9 @@ export interface Comparable {
   land: number;
   building: number;
   beds: number;
+  staffBeds?: number;
+  baths?: number;
+  staffBaths?: number;
   price: number;
   condition: Condition;
   certificate: Property['certificate'];
@@ -173,6 +180,10 @@ export function validateProperty(p: Property) {
   if (!p.address.trim() || !p.area.trim()) issues.push('Alamat dan area wajib diisi.');
   if (!positive(p.land) || !positive(p.building))
     issues.push('Luas tanah dan bangunan harus lebih dari 0.');
+  if (!validRoomCounts(p.beds, p.staffBeds) || !validRoomCounts(p.baths, p.staffBaths))
+    issues.push('Format kamar harus seperti 4 atau 4+1; angka setelah + menunjukkan ART/servis.');
+  if (p.condition === 'Belum diketahui')
+    issues.push('Kondisi bangunan perlu dipastikan sebelum estimasi lokal.');
   if (p.certificate === 'Lainnya / belum diketahui')
     issues.push('Status sertifikat perlu dipastikan sebelum estimasi harga.');
   if ((p.lat !== null || p.lng !== null) && !validCoords(p.lat, p.lng))
@@ -184,9 +195,16 @@ export function validateComparable(c: Comparable) {
     return 'Nama, alamat, area, dan sumber wajib diisi.';
   if (![c.price, c.land, c.building].every(positive))
     return 'Harga, luas tanah, dan luas bangunan harus lebih dari 0.';
-  if (!Number.isInteger(c.beds) || c.beds < 0)
-    return 'Jumlah kamar harus berupa bilangan bulat positif atau 0.';
-  if (!['Siap huni', 'Perlu renovasi ringan', 'Perlu renovasi besar'].includes(c.condition))
+  if (
+    !validRoomCounts(c.beds, c.staffBeds) ||
+    (c.baths !== undefined && !validRoomCounts(c.baths, c.staffBaths))
+  )
+    return 'Jumlah kamar harus seperti 4 atau 4+1, dengan bagian utama dan ART/servis yang valid.';
+  if (
+    !['Siap huni', 'Perlu renovasi ringan', 'Perlu renovasi besar', 'Belum diketahui'].includes(
+      c.condition,
+    )
+  )
     return 'Kondisi bangunan tidak valid.';
   if (!['SHM', 'HGB', 'Lainnya / belum diketahui'].includes(c.certificate))
     return 'Jenis sertifikat tidak valid.';
@@ -227,13 +245,22 @@ function quantile(values: number[], q: number) {
 export function analyze(project: Project): Analysis {
   const p = project.property;
   const issues = validateProperty(p);
+  if (p.kind && p.kind !== 'Rumah tapak')
+    issues.push(
+      'Estimasi lokal V1 mendukung rumah tapak. Gunakan prompt harga 180 hari untuk jenis properti lainnya.',
+    );
   if (project.settings.mode === 'radius' && !validCoords(p.lat, p.lng))
     issues.push('Pencarian radius memerlukan koordinat properti.');
   if (project.settings.mode === 'cluster' && !p.cluster.trim())
     issues.push('Isi nama cluster untuk menggunakan filter cluster.');
   const seenAddress = new Set<string>();
   const seenUrl = new Set<string>();
-  const conditionScore = { 'Siap huni': 2, 'Perlu renovasi ringan': 1, 'Perlu renovasi besar': 0 };
+  const conditionScore = {
+    'Siap huni': 2,
+    'Perlu renovasi ringan': 1,
+    'Perlu renovasi besar': 0,
+    'Belum diketahui': 0,
+  };
   const rows: Matched[] = project.comparables.map((c) => {
     let reason = '';
     const key = `${norm(c.address)}:${c.land}:${c.building}`;
@@ -245,6 +272,8 @@ export function analyze(project: Project): Analysis {
     else if (Math.floor((Date.parse(today()) - Date.parse(c.observedAt)) / 86400000) > 180)
       reason = 'Data lebih dari 180 hari';
     else if (c.priceType === 'Transaksi' && !c.verified) reason = 'Transaksi belum diverifikasi';
+    else if (c.condition === 'Belum diketahui' || c.certificate === 'Lainnya / belum diketahui')
+      reason = 'Kondisi / sertifikat perlu diverifikasi';
     else if (c.certificate !== p.certificate) reason = 'Sertifikat berbeda';
     else if (project.settings.mode === 'area' && norm(c.area) !== norm(p.area))
       reason = 'Di luar area';
@@ -399,7 +428,7 @@ export function evaluate(project: Project, analysis: Analysis) {
 export function insights(p: Property) {
   const strengths = [
     p.beds >= 3
-      ? `${p.beds} kamar mendukung kebutuhan ruang keluarga atau ruang kerja.`
+      ? `${formatRooms(p.beds, p.staffBeds)} kamar: ${p.beds} untuk keluarga${p.staffBeds ? ` dan ${p.staffBeds} kamar ART terpisah` : ''}.`
       : 'Kebutuhan ruang dapat dinilai melalui denah dan kunjungan.',
     p.road >= 6
       ? `Lebar jalan ${p.road} m menurut input pemilik; verifikasi akses di lokasi.`

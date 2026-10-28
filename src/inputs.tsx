@@ -15,7 +15,6 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import Papa from 'papaparse';
 import {
   compact,
   dateOffset,
@@ -30,7 +29,9 @@ import {
   type Project,
   type Property,
 } from './domain';
-import { Button, Field, Tag, Empty, Notice, Modal, saveBlob } from './ui';
+import { Button, Field, Tag, Empty, Notice, Modal, RoomInput, saveBlob } from './ui';
+import { COMPARABLE_CSV_COLUMNS, parseComparableCsv } from './comparable-csv';
+import { formatRooms } from './rooms';
 import { validatePromptProperty } from './prompts';
 export function PropertyForm({
   property,
@@ -186,8 +187,19 @@ export function PropertyForm({
           {num('frontage', 'Lebar muka tanah / bangunan (m)')}
           {num('road', 'Lebar jalan (m)')}
           {num('floors', 'Jumlah lantai')}
-          {num('beds', 'Kamar tidur')}
-          {num('baths', 'Kamar mandi')}
+          <RoomInput
+            label="Kamar tidur"
+            main={draft.beds}
+            staff={draft.staffBeds}
+            onChange={(beds, staffBeds) => setDraft((s) => ({ ...s, beds, staffBeds }))}
+          />
+          <RoomInput
+            label="Kamar mandi"
+            main={draft.baths}
+            staff={draft.staffBaths}
+            bathroom
+            onChange={(baths, staffBaths) => setDraft((s) => ({ ...s, baths, staffBaths }))}
+          />
           {num('carport', 'Kapasitas carport (mobil)')}
           {num('garage', 'Kapasitas garasi (mobil)')}
           {num('electricity', 'Daya listrik (VA)')}
@@ -210,6 +222,7 @@ export function PropertyForm({
             'Siap huni',
             'Perlu renovasi ringan',
             'Perlu renovasi besar',
+            'Belum diketahui',
           ])}
           {select('certificate', 'Status sertifikat (boleh belum diketahui)', [
             'Lainnya / belum diketahui',
@@ -307,7 +320,7 @@ export function PropertyForm({
         </span>
         <Button type="submit" disabled={photoBusy}>
           <Check size={17} />
-          Simpan & buat prompt
+          Simpan & perbarui analisis
         </Button>
       </div>
     </form>
@@ -334,82 +347,34 @@ export function Comparables({
       .toLowerCase()
       .includes(query.toLowerCase()),
   );
-  const importCsv = (file: File | undefined) => {
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [pasteText, setPasteText] = useState('');
+  const consumeCsv = (text: string) => {
+    const result = parseComparableCsv(text);
+    if (result.error) {
+      setError(result.error);
+      return false;
+    }
+    update((s) => ({ ...s, comparables: [...s.comparables, ...result.records] }));
+    setError('');
+    notify(`${result.records.length} pembanding diimpor. Tinjau sumber dan verifikasinya.`);
+    return true;
+  };
+  const importCsv = async (file: File | undefined) => {
     if (!file) return;
     if (file.size > 2e6) {
       setError('File maksimal 2 MB.');
       return;
     }
-    Papa.parse<Record<string, string>>(file, {
-      header: true,
-      skipEmptyLines: 'greedy',
-      complete: (result) => {
-        if (result.errors.length) {
-          setError(`CSV tidak valid: ${result.errors[0].message}`);
-          return;
-        }
-        if (!result.data.length || result.data.length > 500) {
-          setError('CSV harus berisi 1–500 baris.');
-          return;
-        }
-        const num = (s: string | undefined) => (s?.trim() ? Number(s) : 0);
-        const records = result.data.map((r) => ({
-          id: crypto.randomUUID(),
-          title: r.title || '',
-          address: r.address || '',
-          area: r.area || '',
-          cluster: r.cluster || '',
-          lat: r.lat?.trim() ? Number(r.lat) : null,
-          lng: r.lng?.trim() ? Number(r.lng) : null,
-          land: num(r.land),
-          building: num(r.building),
-          beds: num(r.beds),
-          price: num(r.price),
-          condition: (r.condition || 'Siap huni') as Comparable['condition'],
-          certificate: (r.certificate || 'SHM') as Comparable['certificate'],
-          source: r.source || '',
-          url: r.url || '',
-          observedAt: r.observedAt || '',
-          verified: false,
-          enabled: true,
-          priceType: (r.priceType || 'Penawaran') as Comparable['priceType'],
-        }));
-        const invalid = records
-          .map((r, i) => ({ message: validateComparable(r), row: i + 2 }))
-          .find((x) => x.message);
-        if (invalid) {
-          setError(`Baris ${invalid.row}: ${invalid.message} Tidak ada data yang diimpor.`);
-          return;
-        }
-        update((s) => ({ ...s, comparables: [...s.comparables, ...records] }));
-        setError('');
-        notify(`${records.length} pembanding diimpor. Periksa duplikat dan verifikasi sumbernya.`);
-      },
-      error: () => setError('File tidak dapat dibaca.'),
-    });
+    try {
+      consumeCsv(await file.text());
+    } catch {
+      setError('File tidak dapat dibaca.');
+    }
   };
   const template = () =>
     saveBlob(
-      Papa.unparse([
-        {
-          title: 'Contoh rumah (ganti dengan data nyata)',
-          address: 'Alamat lengkap unik',
-          area: 'Nama kecamatan',
-          cluster: '',
-          lat: '',
-          lng: '',
-          land: 180,
-          building: 150,
-          beds: 3,
-          price: 2800000000,
-          condition: 'Siap huni',
-          certificate: 'SHM',
-          source: 'Nama sumber',
-          url: '',
-          observedAt: today(),
-          priceType: 'Penawaran',
-        },
-      ]),
+      COMPARABLE_CSV_COLUMNS.join(',') + '\n',
       'template-pembanding.csv',
       'text/csv;charset=utf-8',
     );
@@ -487,11 +452,20 @@ export function Comparables({
               Data pembanding <Tag tone="gray">{project.comparables.length} data</Tag>
             </h2>
             <p>
-              {project.comparables.length} data tersimpan. Opsional; tidak diperlukan untuk membuat
-              prompt.
+              {analysis.count} pembanding menjadi dasar estimasi lokal. Lengkapi dengan prompt
+              riset, lalu impor dan tinjau hasil CSV.
             </p>
           </div>
           <div className="button-row">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setError('');
+                setPasteOpen(true);
+              }}
+            >
+              Tempel CSV dari AI
+            </Button>
             <Button variant="secondary" onClick={template}>
               <FileDown size={15} />
               Template
@@ -514,7 +488,7 @@ export function Comparables({
             </Button>
           </div>
         </div>
-        {error && (
+        {error && !pasteOpen && (
           <div className="error-message" role="alert">
             {error}
           </div>
@@ -589,6 +563,10 @@ export function Comparables({
                         {r.comparable.land} / {r.comparable.building}
                       </strong>
                       <small>m² · {r.comparable.certificate}</small>
+                      <small>
+                        KT {formatRooms(r.comparable.beds, r.comparable.staffBeds)} · KM{' '}
+                        {formatRooms(r.comparable.baths, r.comparable.staffBaths)}
+                      </small>
                     </td>
                     <td>
                       <strong>{compact(r.comparable.price)}</strong>
@@ -599,12 +577,12 @@ export function Comparables({
                     </td>
                     <td>
                       <Tag tone={r.included ? 'green' : 'amber'}>
-                        {r.included ? 'Kandidat relevan' : r.reason}
+                        {r.included ? 'Sesuai kriteria' : r.reason}
                       </Tag>
                       <small>
                         {r.included
-                          ? 'AI perlu memeriksa ulang sumber'
-                          : 'Perlu ditinjau. Centang untuk melampirkan.'}
+                          ? `Penyesuaian ${r.adjustment >= 0 ? '+' : ''}${r.adjustment.toFixed(1)}%`
+                          : 'Tidak dipakai dalam estimasi lokal'}
                       </small>
                     </td>
                     <td>
@@ -657,6 +635,45 @@ export function Comparables({
           Harga penawaran bukan harga transaksi. Duplikat lintas agen tetap perlu diperiksa manual.
         </div>
       </section>
+      {pasteOpen && (
+        <Modal
+          title="Tempel CSV dari AI"
+          subtitle="Salin header dan baris CSV saja, tanpa pagar kode atau penjelasan AI."
+          close={() => setPasteOpen(false)}
+        >
+          <textarea
+            aria-label="CSV pembanding dari AI"
+            value={pasteText}
+            onChange={(e) => setPasteText(e.target.value)}
+            className="manual-copy"
+            placeholder={COMPARABLE_CSV_COLUMNS.join(',')}
+          />
+          {error && (
+            <div className="error-message" role="alert">
+              {error}
+            </div>
+          )}
+          <Notice>
+            Harga tetap berupa rupiah penuh. Kamar 4+1 dipisahkan menjadi 4 kamar keluarga dan 1
+            ART. Seluruh data impor berstatus belum diverifikasi.
+          </Notice>
+          <div className="modal-actions">
+            <Button variant="secondary" onClick={() => setPasteOpen(false)}>
+              Batal
+            </Button>
+            <Button
+              onClick={() => {
+                if (consumeCsv(pasteText)) {
+                  setPasteOpen(false);
+                  setPasteText('');
+                }
+              }}
+            >
+              Impor data CSV
+            </Button>
+          </div>
+        </Modal>
+      )}
       {(showAdd || editing) && (
         <ComparableModal
           initial={editing || undefined}
@@ -767,7 +784,19 @@ function ComparableModal({
           {field('land', 'Luas tanah (m²) *', 'number', true)}
           {field('building', 'Luas bangunan (m²) *', 'number', true)}
           {field('price', 'Harga (Rp) *', 'number', true)}
-          {field('beds', 'Kamar tidur', 'number')}
+          <RoomInput
+            label="Kamar tidur"
+            main={c.beds}
+            staff={c.staffBeds}
+            onChange={(beds, staffBeds) => setC((s) => ({ ...s, beds, staffBeds }))}
+          />
+          <RoomInput
+            label="Kamar mandi"
+            main={c.baths ?? 0}
+            staff={c.staffBaths}
+            bathroom
+            onChange={(baths, staffBaths) => setC((s) => ({ ...s, baths, staffBaths }))}
+          />
           <Field label="Kondisi bangunan">
             <select
               value={c.condition}
@@ -775,7 +804,12 @@ function ComparableModal({
                 setC((s) => ({ ...s, condition: ev.target.value as Comparable['condition'] }))
               }
             >
-              {['Siap huni', 'Perlu renovasi ringan', 'Perlu renovasi besar'].map((x) => (
+              {[
+                'Siap huni',
+                'Perlu renovasi ringan',
+                'Perlu renovasi besar',
+                'Belum diketahui',
+              ].map((x) => (
                 <option key={x}>{x}</option>
               ))}
             </select>

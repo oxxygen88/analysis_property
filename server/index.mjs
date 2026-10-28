@@ -8,7 +8,7 @@ if (existsSync(path.join(root, '.env'))) process.loadEnvFile(path.join(root, '.e
 const app = express();
 app.disable('x-powered-by');
 app.get('/api/health', (_req, res) =>
-  res.json({ status: 'ok', mode: 'prompt-generator', requiresApiKey: false }),
+  res.json({ status: 'ok', mode: 'property-analysis-with-prompts', requiresApiKey: false }),
 );
 app.use('/api', (_req, res) =>
   res
@@ -32,5 +32,5 @@ app.use((err, _req, res, _next) =>
 );
 const port = Number(process.env.PORT || 3000);
 app.listen(port, process.env.HOST || '127.0.0.1', () =>
-  console.log(`RuangNilai Prompt Studio listening on port ${port}`),
+  console.log(`RuangNilai V1 + Prompt AI listening on port ${port}`),
 );

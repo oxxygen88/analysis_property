@@ -1,4 +1,13 @@
-import { cloneElement, isValidElement, useEffect, useId, useRef, type ReactNode } from 'react';
+import {
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { formatRooms, parseRooms } from './rooms';
 import { Layers3, CircleHelp, X } from 'lucide-react';
 export function Button({
   children,
@@ -179,4 +188,44 @@ export function saveBlob(content: string, filename: string, type: string) {
   link.download = filename;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export function RoomInput({
+  label,
+  main,
+  staff,
+  onChange,
+  bathroom = false,
+}: {
+  label: string;
+  main: number;
+  staff?: number;
+  onChange: (main: number, staff: number) => void;
+  bathroom?: boolean;
+}) {
+  const [text, setText] = useState(() => formatRooms(main, staff));
+  return (
+    <Field
+      label={label}
+      hint={
+        bathroom
+          ? '3+1 = 3 kamar mandi utama + 1 kamar mandi ART/servis.'
+          : '4+1 = 4 kamar keluarga + 1 kamar ART. Bukan 5 kamar keluarga.'
+      }
+    >
+      <input
+        type="text"
+        inputMode="text"
+        value={text}
+        placeholder={bathroom ? 'Contoh: 3+1' : 'Contoh: 4+1'}
+        pattern="[0-9]+(\s*\+\s*[0-9]+)?"
+        required
+        onChange={(e) => {
+          setText(e.target.value);
+          const value = parseRooms(e.target.value);
+          onChange(value?.main ?? NaN, value?.staff ?? 0);
+        }}
+      />
+    </Field>
+  );
 }

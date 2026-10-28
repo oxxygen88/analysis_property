@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { chromium } from '@playwright/test';
-import { runPromptFlow } from './prompt-flow.mjs';
+import { runHybridFlow } from './prompt-flow.mjs';
 
 const html = await readFile(new URL('../index.html', import.meta.url));
 assert.ok(html.length > 100_000);
@@ -22,7 +22,7 @@ const server = createServer((req, res) => {
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 try {
   const url = `http://127.0.0.1:${server.address().port}/analysis_property/`;
-  await runPromptFlow(url, 'prompt-pages');
+  await runHybridFlow(url, 'hybrid-pages');
   assert.deepEqual(unexpected, [], 'All JS, CSS, fonts, and icons must be embedded for Pages');
   const browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium',
@@ -33,8 +33,11 @@ try {
     const context = await browser.newContext();
     const page = await context.newPage();
     await page.goto(url);
-    await page.getByRole('heading', { name: 'Konteks lengkap. Prompt yang tepat.' }).waitFor();
+    await page.getByRole('heading', { name: 'Keputusan tepat dimulai di sini.' }).waitFor();
     await context.setOffline(true);
+    await page
+      .getByRole('button', { name: 'Cari pembanding dengan prompt AI', exact: true })
+      .click();
     await page.getByRole('button', { name: 'Generate prompt', exact: true }).click();
     await page.getByRole('tab', { name: 'Teks lengkap', exact: true }).click();
     assert.ok(

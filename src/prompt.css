@@ -1583,3 +1583,116 @@
     font-size: 10px;
   }
 }
+
+/* V1 dashboard remains primary; prompts are a companion workflow. */
+.v1-prompt-bridge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 19px 22px;
+  margin-bottom: 20px;
+  background: linear-gradient(115deg, #fff, #f1f6e8);
+  border-color: #e1e9d5;
+}
+.v1-prompt-bridge h2 {
+  font-size: 15px;
+  color: #547143;
+  line-height: 1.6;
+}
+.v1-prompt-bridge p {
+  font-size: 11px;
+  line-height: 1.9;
+  color: #8d9f7c;
+  max-width: 720px;
+  margin-top: 5px;
+}
+.v1-prompt-bridge .button {
+  font-size: 10px;
+  min-height: 39px;
+}
+.prompt-integration > .notice {
+  margin-bottom: 16px;
+}
+.prompt-bridge-actions {
+  margin-bottom: 23px;
+  flex-wrap: wrap;
+}
+.prompt-bridge-actions .button {
+  font-size: 11px;
+}
+.property-facts {
+  grid-template-columns: repeat(4, 1fr);
+}
+.ai-card > .button-row {
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.room-format-note {
+  font-size: 9px;
+  color: #9ba98a;
+  margin-top: 7px;
+  line-height: 1.8;
+}
+@media (max-width: 1050px) {
+  .v1-prompt-bridge {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .v1-prompt-bridge .button {
+    margin-left: auto;
+  }
+  .property-facts > span > small {
+    font-size: 6px;
+  }
+}
+@media (max-width: 560px) {
+  .v1-prompt-bridge {
+    padding: 19px 17px;
+  }
+  .v1-prompt-bridge h2 {
+    font-size: 15px;
+  }
+  .v1-prompt-bridge p {
+    font-size: 10px;
+  }
+  .v1-prompt-bridge .button {
+    width: 100%;
+    font-size: 10px;
+  }
+  .prompt-bridge-actions {
+    gap: 8px;
+  }
+  .prompt-bridge-actions .button {
+    font-size: 9px;
+    padding: 10px;
+  }
+  .property-facts {
+    gap: 4px;
+  }
+  .property-facts strong {
+    font-size: 11px;
+  }
+  .property-facts strong > small {
+    font-size: 6px;
+  }
+  .property-facts > span > small {
+    font-size: 6px;
+  }
+  .property-overview {
+    padding-inline: 12px;
+  }
+  .property-title-line {
+    flex-wrap: wrap;
+  }
+  .topbar-right > .tag {
+    font-size: 6px;
+  }
+  .top-date {
+    display: none;
+  }
+}
+.sidebar {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
